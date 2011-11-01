@@ -1,0 +1,6 @@
+gzip_assets: off
+compress_assets: on
+
+javascripts:
+  'backbone-modelref.min':
+    - backbone-modelref.js

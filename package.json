@@ -1,0 +1,12 @@
+{
+  "name"          : "backbone-modelref",
+  "description"   : "Backbone-ModelRef.js provides a mechanism to respond to lazy-loaded Backbone.js models",
+  "homepage"      : "https://github.com/kmalakoff/backbone-modelref",
+  "keywords"      : ["backbone", "backbone.js", "javascript", "coffeescript", "browser"],
+  "author"        : "Kevin Malakoff <xmann.intl@gmail.com>",
+  "contributors"  : [],
+  "dependencies"  : [],
+  "repository"    : {"type": "git", "url": "git://github.com/kmalakoff/backbone-modelref.git"},
+  "main"          : "backbone-modelref.js",
+  "version"       : "0.1.0"
+}
