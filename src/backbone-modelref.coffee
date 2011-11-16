@@ -45,6 +45,11 @@ class Backbone.ModelRef
     @collection = null
     return this
 
+  get: (attribute_name) ->
+    throw new Error("Backbone.ModelRef.get(): only id is permitted") if attribute_name != 'id'
+    @model_id = @cached_model.id if @cached_model and not @cached_model.isNew() # upgrade the reference from the cached model
+    return @model_id
+
   getModel: ->
     @model_id = @cached_model.id if @cached_model and not @cached_model.isNew() # upgrade the reference from the cached model
     return @cached_model if @cached_model # return the cached model

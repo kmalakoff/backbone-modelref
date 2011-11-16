@@ -152,10 +152,21 @@ $(document).ready(function() {
     raises((function() {
       return new Backbone.ModelRef(new Backbone.Collection(), null, null);
     }), Error, "Backbone.ModelRef: model_id and cached_model missing");
-    model_ref = new Backbone.ModelRef(new Backbone.Collection(), null, new Backbone.Model());
+    model_ref = new Backbone.ModelRef(new Backbone.Collection(), null, new Backbone.Model({
+      id: 'hello'
+    }));
+    equal(model_ref.get('id'), 'hello', 'can get an id of a cached model');
+    raises((function() {
+      return model_ref.get('foo');
+    }), Error, "Backbone.ModelRef.get(): only id is permitted");
     model_ref.release();
-    return raises((function() {
+    raises((function() {
       return model_ref.release();
     }), Error, "Backbone.ModelRef.release(): ref count is corrupt");
+    model_ref = new Backbone.ModelRef(new Backbone.Collection(), 'hello');
+    equal(model_ref.get('id'), 'hello', 'can get an id of a cached model');
+    return raises((function() {
+      return model_ref.get('foo');
+    }), Error, "Backbone.ModelRef.get(): only id is permitted");
   });
 });
