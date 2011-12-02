@@ -27,20 +27,20 @@ You can get the library here:
   collection.add(collection.parse([{id: 'dog'}]))             # view is now rendering in loaded state
 ````
 
-# Classes:
+Classes
+-------
+*Backbone.ModelRef*: This is the only class! It just wraps a collection and a model id, and tells you when the model is loaded and unloaded.
 
-## Backbone.ModelRef
-This is the only class! It just wraps a collection and a model id, and tells you when the model is loaded and unloaded.
+API Signature Parity between Backbone.Model and Backbone.ModelRef
+-----------------------------------------------------------------
 
-## API Signature Parity between Backbone.Model and Backbone.ModelRef:
-
-|Function|Backbone.Model|Backbone.ModelRef|
----------|--------------|-----------------:|
-1. get(attribute_name)|returns model.get(attribute_name)|returns the model id only and throws an exception otherwise|
-2. model()|returns this|returns its model if it is loaded or null if not|
-3. isLoaded()|returns true|returns true if its model is loaded and false otherwise|
-4. bindLoadingStates(loaded_fn or {loaded:fn, unloaded:fn})|loaded function called one time (immediately) and unloaded function never called. No Backbone.Event binding occurs|loaded function called immediately if the model is loaded otherwise they are bound using Backbone.Events 'loaded' and 'unloaded' where each is called when the model is loaded or unloaded, respectively|
-5. unbindLoadingStates(loaded_fn or {loaded:fn, unloaded:fn})|ignored|unbinds Backbone.Events 'loaded' and 'unloaded'|
+|*Function*|*Backbone.Model*|*Backbone.ModelRef*|
+-----------------|--------------|-----------------|
+*get(attribute_name)*|returns model.get(attribute_name)|returns the model id only and throws an exception otherwise|
+*model()*|returns this|returns its model if it is loaded or null if not|
+*isLoaded()*|returns true|returns true if its model is loaded and false otherwise|
+*bindLoadingStates( loaded_fn or {loaded:fn, unloaded:fn} )*|loaded function called one time (immediately) and unloaded function never called. No Backbone.Event binding occurs|loaded function called immediately if the model is loaded otherwise they are bound using Backbone.Events 'loaded' and 'unloaded' where each is called when the model is loaded or unloaded, respectively|
+*unbindLoadingStates( loaded_fn or {loaded:fn, unloaded:fn} )*|ignored|unbinds Backbone.Events 'loaded' and 'unloaded'|
 
 ## Other notes:
 
