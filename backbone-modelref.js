@@ -80,15 +80,6 @@ Backbone.ModelRef = (function() {
     this.collection = null;
     return this;
   };
-  ModelRef.prototype.get = function(attribute_name) {
-    if (attribute_name !== 'id') {
-      throw new Error("Backbone.ModelRef.get(): only id is permitted");
-    }
-    if (this.cached_model && !this.cached_model.isNew()) {
-      this.model_id = this.cached_model.id;
-    }
-    return this.model_id;
-  };
   ModelRef.prototype.getModel = function() {
     if (this.cached_model && !this.cached_model.isNew()) {
       this.model_id = this.cached_model.id;
@@ -97,18 +88,6 @@ Backbone.ModelRef = (function() {
       return this.cached_model;
     }
     return this.cached_model = this.collection.get(this.model_id);
-  };
-  ModelRef.prototype.isLoaded = function() {
-    var model;
-    model = this.getModel();
-    if (!model) {
-      return false;
-    }
-    if (model.isLoaded) {
-      return model.isLoaded();
-    } else {
-      return true;
-    }
   };
   ModelRef.prototype._checkForLoad = function() {
     var event, model, _i, _j, _len, _len2;
@@ -153,5 +132,77 @@ Backbone.ModelRef = (function() {
   };
   return ModelRef;
 })();
-Backbone.ModelRef.VERSION = '0.1.0';
 __extends(Backbone.ModelRef.prototype, Backbone.Events);
+Backbone.ModelRef.VERSION = '0.1.1';
+Backbone.Model.prototype.model = function() {
+  return this;
+};
+Backbone.Model.prototype.isLoaded = function() {
+  return true;
+};
+Backbone.Model.prototype.bindLoadingStates = function(params) {
+  if (_.isFunction(params)) {
+    params(this);
+  } else if (params.loaded) {
+    params.loaded(this);
+  }
+  return this;
+};
+Backbone.Model.prototype.unbindLoadingStates = function(params) {
+  return this;
+};
+Backbone.ModelRef.prototype.get = function(attribute_name) {
+  if (attribute_name !== 'id') {
+    throw new Error("Backbone.ModelRef.get(): only id is permitted");
+  }
+  if (this.cached_model && !this.cached_model.isNew()) {
+    this.model_id = this.cached_model.id;
+  }
+  return this.model_id;
+};
+Backbone.ModelRef.prototype.model = function() {
+  return this.getModel();
+};
+Backbone.ModelRef.prototype.isLoaded = function() {
+  var model;
+  model = this.getModel();
+  if (!model) {
+    return false;
+  }
+  if (model.isLoaded) {
+    return model.isLoaded();
+  } else {
+    return true;
+  }
+};
+Backbone.ModelRef.prototype.bindLoadingStates = function(params) {
+  var model;
+  if (_.isFunction(params)) {
+    this.bind('loaded', params);
+  } else {
+    if (params.loaded) {
+      this.bind('loaded', params.loaded);
+    }
+    if (params.unloaded) {
+      this.bind('unloaded', params.unloaded);
+    }
+  }
+  model = this.model();
+  if (!model) {
+    return null;
+  }
+  return model.bindLoadingStates(params);
+};
+Backbone.ModelRef.prototype.unbindLoadingStates = function(params) {
+  if (_.isFunction(params)) {
+    this.unbind('loaded', params);
+  } else {
+    if (params.loaded) {
+      this.unbind('loaded', params.loaded);
+    }
+    if (params.unloaded) {
+      this.unbind('unloaded', params.unloaded);
+    }
+  }
+  return this.model();
+};

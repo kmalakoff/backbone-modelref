@@ -87,6 +87,110 @@ $(document).ready( ->
     equal(view.is_waiting, false, 'view is in render state again')
   )
 
+  test("Emulated API signatures: simple case", ->
+    collection = new MyCollection()
+    model = new Backbone.Model({id: 'dog', name: 'Rover'})
+    model_ref = new Backbone.ModelRef(collection, 'dog')
+
+    #######################################
+    equal(model.get('id'), 'dog', 'can get an id')
+    equal(model_ref.get('id'), 'dog', 'can get an id')
+
+    equal(model.get('name'), 'Rover', 'can get an attribute')
+    raises((->model_ref.get('name')), Error, "Backbone.ModelRef.get(): only id is permitted")
+
+    equal(model.model(), model, 'can get self')
+    equal(model_ref.model(), null, 'model is not yet loaded')
+
+    equal(model.isLoaded(), true, 'model is always loaded')
+    equal(model_ref.isLoaded(), false, 'model is not yet loaded')
+
+    #######################################
+    collection.add(model)
+    equal(model.get('id'), 'dog', 'can get an id')
+    equal(model_ref.get('id'), 'dog', 'can get an id')
+
+    equal(model.get('name'), 'Rover', 'can get an attribute')
+    raises((->model_ref.get('name')), Error, "Backbone.ModelRef.get(): only id is permitted")
+
+    equal(model.model(), model, 'can get self')
+    equal(model_ref.model(), model, 'model is now loaded')
+
+    equal(model.isLoaded(), true, 'model is always loaded')
+    equal(model_ref.isLoaded(), true, 'model is now loaded')
+
+    #######################################
+    collection.reset()
+    equal(model.get('id'), 'dog', 'can get an id')
+    equal(model_ref.get('id'), 'dog', 'can get an id')
+
+    equal(model.get('name'), 'Rover', 'can get an attribute')
+    raises((->model_ref.get('name')), Error, "Backbone.ModelRef.get(): only id is permitted")
+
+    equal(model.model(), model, 'can get self')
+    equal(model_ref.model(), null, 'model is not yet loaded')
+
+    equal(model.isLoaded(), true, 'model is always loaded')
+    equal(model_ref.isLoaded(), false, 'model is not yet loaded')
+  )
+
+  test("Emulated API signatures: binding", ->
+    create_counter_fn = (counter_attribute) ->
+      return (model) ->
+        model[counter_attribute] = 0 unless model.hasOwnProperty(counter_attribute)
+        model[counter_attribute]++
+
+    collection = new MyCollection()
+    model = new Backbone.Model({id: 'dog', name: 'Rover'})
+    model_ref = new Backbone.ModelRef(collection, 'dog')
+
+    #######################################
+    model.bindLoadingStates(create_counter_fn('model_loaded'))
+    equal(model.model_loaded, 1, 'model is loaded so called immediately, but not bound so subsequent loads and unload will do nothing. You need a model ref for tracking those changes')
+
+    #######################################
+    model.bindLoadingStates({loaded: create_counter_fn('model_loaded'), unloaded: create_counter_fn('model_unloaded')})
+    equal(model.model_loaded, 2, 'model is loaded so called immediately')
+    equal(model.model_unloaded, undefined, 'model is loaded and unload will never be called')
+
+    #######################################
+    model_ref.bindLoadingStates(create_counter_fn('model_ref_loaded'))
+    equal(model_ref.model_ref_loaded, undefined, 'model is not loaded so not yet called')
+    collection.add(model)
+    equal(model_ref.isLoaded(), true, 'model ref is loaded')
+    equal(model.model_ref_loaded, 1, 'model is now loaded')
+    collection.reset()
+    equal(model_ref.isLoaded(), false, 'model ref not loaded')
+    equal(model.model_ref_loaded, 1, 'model unload did nothing')
+
+    #######################################
+    model_ref.bindLoadingStates({loaded: create_counter_fn('model_ref_loaded'), unloaded: create_counter_fn('model_ref_unloaded')})
+    equal(model.model_ref_loaded, 1, 'model still unloaded')
+    equal(model.model_ref_unloaded, undefined, 'model unload not yet happened with the function')
+
+    collection.add(model)
+    equal(model_ref.isLoaded(), true, 'model ref is loaded')
+    equal(model.model_ref_loaded, 3, 'model is loaded again and both original and new binding called')
+    equal(model.model_ref_unloaded, undefined, 'model unload not yet happened with the function')
+    collection.reset()
+    equal(model_ref.isLoaded(), false, 'model ref not loaded')
+    equal(model.model_ref_loaded, 3, 'model unload did nothing')
+    equal(model.model_ref_unloaded, 1, 'model unload recorded')
+
+    #######################################
+    model_ref2 = new Backbone.ModelRef(collection, 'dog')
+    collection.add(model)
+    model_ref2.bindLoadingStates({loaded: create_counter_fn('model_ref2_loaded'), unloaded: create_counter_fn('model_ref2_unloaded')})
+    equal(model_ref2.isLoaded(), true, 'model ref is loaded')
+    equal(model.model_ref2_loaded, 1, 'model was already laoded so callback was called')
+    equal(model.model_ref2_unloaded, undefined, 'model unload not yet happened with the function')
+
+    collection.reset()
+    equal(model_ref2.isLoaded(), false, 'model ref not loaded')
+    equal(model.model_ref2_loaded, 1, 'model unload did nothing')
+    equal(model.model_ref2_unloaded, 1, 'model unload recorded')
+  )
+
   test("Standard use case: expected errors", ->
     raises((->new Backbone.ModelRef(null, 'dog')), Error, "Backbone.ModelRef: collection is missing")
     raises((->new Backbone.ModelRef(new Backbone.Collection())), Error, "Backbone.ModelRef: model_id and cached_model missing")

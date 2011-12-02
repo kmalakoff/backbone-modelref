@@ -45,20 +45,10 @@ class Backbone.ModelRef
     @collection = null
     return this
 
-  get: (attribute_name) ->
-    throw new Error("Backbone.ModelRef.get(): only id is permitted") if attribute_name != 'id'
-    @model_id = @cached_model.id if @cached_model and not @cached_model.isNew() # upgrade the reference from the cached model
-    return @model_id
-
   getModel: ->
     @model_id = @cached_model.id if @cached_model and not @cached_model.isNew() # upgrade the reference from the cached model
     return @cached_model if @cached_model # return the cached model
     return (@cached_model = @collection.get(@model_id)) # find the model, it may not exist
-
-  isLoaded: ->
-    model = @getModel()
-    return false if not model
-    return if model.isLoaded then model.isLoaded() else true  # allow for a custom isLoaded check (for example, checking lazy dependencies are loaded in Backbone.Relational)
 
   #######################################
   # Internal
@@ -87,9 +77,57 @@ class Backbone.ModelRef
     model = @cached_model; @cached_model = null
     @trigger('unloaded', model)
 
-Backbone.ModelRef.VERSION = '0.1.0'
-
 #######################################
 # Mix in Backbone.Events so callers can subscribe
 #######################################
 Backbone.ModelRef.prototype extends Backbone.Events
+
+Backbone.ModelRef.VERSION = '0.1.1'
+
+#######################################
+# Emulated APIs: Backbone.Model - Helps simplify code that takes either a Backbone.Model or Backbone.ModelRef by providing a common signature
+#######################################
+Backbone.Model::model = -> return this
+Backbone.Model::isLoaded = -> return true
+
+Backbone.Model::bindLoadingStates = (params) ->
+  if _.isFunction(params)
+    params(this)
+  else if params.loaded
+    params.loaded(this)
+  return this
+
+Backbone.Model::unbindLoadingStates = (params) -> return this
+
+#######################################
+# Emulated APIs: Backbone.ModelRef - Helps simplify code that takes either a Backbone.Model or Backbone.ModelRef by providing a common signature
+#######################################
+Backbone.ModelRef::get = (attribute_name) ->
+  throw new Error("Backbone.ModelRef.get(): only id is permitted") if attribute_name != 'id'
+  @model_id = @cached_model.id if @cached_model and not @cached_model.isNew() # upgrade the reference from the cached model
+  return @model_id
+
+Backbone.ModelRef::model = -> return @getModel()
+
+Backbone.ModelRef::isLoaded = ->
+  model = @getModel()
+  return false if not model
+  return if model.isLoaded then model.isLoaded() else true  # allow for a custom isLoaded check (for example, checking lazy dependencies are loaded in Backbone.Relational)
+
+Backbone.ModelRef::bindLoadingStates = (params) ->
+  if _.isFunction(params)
+    @bind('loaded', params)
+  else
+    @bind('loaded', params.loaded) if params.loaded
+    @bind('unloaded', params.unloaded) if params.unloaded
+  model = @model()
+  return null unless model
+  return model.bindLoadingStates(params)
+
+Backbone.ModelRef::unbindLoadingStates = (params) ->
+  if _.isFunction(params)
+    @unbind('loaded', params)
+  else
+    @unbind('loaded', params.loaded) if params.loaded
+    @unbind('unloaded', params.unloaded) if params.unloaded
+  return @model()
