@@ -14,21 +14,18 @@ throw new Error('Backbone.ModelRef: Dependency alert! Backbone.js must be includ
 #   'unloaded'
 ####################################################
 class Backbone.ModelRef
-  MODEL_EVENTS_WHEN_LOADED = ['reset', 'remove']
-  MODEL_EVENTS_WHEN_UNLOADED = ['reset', 'add']
-
   constructor: (@collection, @model_id, @cached_model=null) ->
     _.bindAll(this, '_checkForLoad', '_checkForUnload')
     throw new Error("Backbone.ModelRef: collection is missing") if not @collection
-    throw new Error("Backbone.ModelRef: model_id and cached_model missing") if not (@model_id or @cached_model)
+    @ref_count = 1
     @collection.retain() if @collection.retain
 
-    @cached_model = @cached_model || @collection.get(@model_id)
+    @model_id = @cached_model.id if @cached_model
+    @cached_model = @collection.get(@model_id) if not @cached_model and @model_id
     if (@cached_model)
-      @collection.bind(event, @_checkForUnload) for event in MODEL_EVENTS_WHEN_LOADED
+      @collection.bind(event, @_checkForUnload) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_LOADED
     else
-      @collection.bind(event, @_checkForLoad) for event in MODEL_EVENTS_WHEN_UNLOADED
-    @ref_count = 1
+      @collection.bind(event, @_checkForLoad) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_UNLOADED
 
   retain: -> @ref_count++; return this
   release: ->
@@ -38,9 +35,9 @@ class Backbone.ModelRef
     return if (@ref_count>0) # not yet ready for release
 
     if @cached_model
-      @collection.unbind(event, @_checkForUnload) for event in MODEL_EVENTS_WHEN_LOADED
+      @collection.unbind(event, @_checkForUnload) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_LOADED
     else
-      @collection.unbind(event, @_checkForLoad) for event in MODEL_EVENTS_WHEN_UNLOADED
+      @collection.unbind(event, @_checkForLoad) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_UNLOADED
     @collection.release() if @collection.release
     @collection = null
     return this
@@ -48,31 +45,32 @@ class Backbone.ModelRef
   getModel: ->
     @model_id = @cached_model.id if @cached_model and not @cached_model.isNew() # upgrade the reference from the cached model
     return @cached_model if @cached_model # return the cached model
-    return (@cached_model = @collection.get(@model_id)) # find the model, it may not exist
+    @cached_model = @collection.get(@model_id) if @model_id # find the model, it may not exist
+    return @cached_model
 
   #######################################
   # Internal
   #######################################
   _checkForLoad: ->
+    return if @cached_model or not @model_id # already cached or no model id
     model = @collection.get(@model_id)
     return if not model # not loaded
-    return if @cached_model # already cached
 
     # switch binding mode -> now waiting for unload
-    @collection.unbind(event, @_checkForLoad) for event in MODEL_EVENTS_WHEN_UNLOADED
-    @collection.bind(event, @_checkForUnload) for event in MODEL_EVENTS_WHEN_LOADED
+    @collection.unbind(event, @_checkForLoad) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_UNLOADED
+    @collection.bind(event, @_checkForUnload) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_LOADED
 
     @cached_model = model
     @trigger('loaded', @cached_model)
 
   _checkForUnload: ->
+    return if not @cached_model or not @model_id # not cached or no model id
     model = @collection.get(@model_id)
     return if model # still exists
-    return if not @cached_model # not cached
 
     # switch binding mode -> now waiting for load
-    @collection.unbind(event, @_checkForUnload) for event in MODEL_EVENTS_WHEN_LOADED
-    @collection.bind(event, @_checkForLoad) for event in MODEL_EVENTS_WHEN_UNLOADED
+    @collection.unbind(event, @_checkForUnload) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_LOADED
+    @collection.bind(event, @_checkForLoad) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_UNLOADED
 
     model = @cached_model; @cached_model = null
     @trigger('unloaded', model)
@@ -83,11 +81,16 @@ class Backbone.ModelRef
 Backbone.ModelRef.prototype extends Backbone.Events
 
 Backbone.ModelRef.VERSION = '0.1.1'
+Backbone.ModelRef.MODEL_EVENTS_WHEN_LOADED = ['reset', 'remove']
+Backbone.ModelRef.MODEL_EVENTS_WHEN_UNLOADED = ['reset', 'add']
 
 #######################################
 # Emulated APIs: Backbone.Model - Helps simplify code that takes either a Backbone.Model or Backbone.ModelRef by providing a common signature
 #######################################
-Backbone.Model::model = -> return this
+Backbone.Model::model = ->
+  return this if arguments.length == 0
+  throw new Error('cannot set a Backbone.Model')
+
 Backbone.Model::isLoaded = -> return true
 
 Backbone.Model::bindLoadingStates = (params) ->
@@ -107,7 +110,33 @@ Backbone.ModelRef::get = (attribute_name) ->
   @model_id = @cached_model.id if @cached_model and not @cached_model.isNew() # upgrade the reference from the cached model
   return @model_id
 
-Backbone.ModelRef::model = -> return @getModel()
+Backbone.ModelRef::model = (model) ->
+  return @getModel() if arguments.length == 0
+
+  throw new Error("Backbone.ModelRef.model(): collections don't match") if model and (model.collection != @collection)
+
+  changed = if @model_id then (not model or (@model_id != model.get('id'))) else !!model
+  return unless changed
+
+  # clear previous
+  if @cached_model
+    previous_model = @cached_model
+    @model_id = null; @cached_model = null
+
+    # switch binding mode -> now waiting for load
+    @collection.unbind(event, @_checkForUnload) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_LOADED
+    @collection.bind(event, @_checkForLoad) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_UNLOADED
+
+    @trigger('unloaded', previous_model)
+
+  return unless model
+  @model_id = model.get('id'); @cached_model = model.model()
+
+  # switch binding mode -> now waiting for unload
+  @collection.unbind(event, @_checkForLoad) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_UNLOADED
+  @collection.bind(event, @_checkForUnload) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_LOADED
+
+  @trigger('loaded', @cached_model)
 
 Backbone.ModelRef::isLoaded = ->
   model = @getModel()

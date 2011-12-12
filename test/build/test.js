@@ -242,17 +242,63 @@ $(document).ready(function() {
     equal(model.model_ref2_loaded, 1, 'model unload did nothing');
     return equal(model.model_ref2_unloaded, 1, 'model unload recorded');
   });
+  test("changing the model ref", function() {
+    var collection, create_counter_fn, model_cat, model_dog, model_ref, model_ref2;
+    create_counter_fn = function(counter_attribute) {
+      return function(model) {
+        if (!model.hasOwnProperty(counter_attribute)) {
+          model[counter_attribute] = 0;
+        }
+        return model[counter_attribute]++;
+      };
+    };
+    collection = new MyCollection();
+    model_dog = new Backbone.Model({
+      id: 'dog',
+      name: 'Rover'
+    });
+    model_cat = new Backbone.Model({
+      id: 'cat',
+      name: 'Kitty'
+    });
+    model_ref = new Backbone.ModelRef(collection, 'dog');
+    model_ref.bindLoadingStates({
+      loaded: create_counter_fn('model_ref_loaded'),
+      unloaded: create_counter_fn('model_ref_unloaded')
+    });
+    model_ref2 = new Backbone.ModelRef(collection, 'dog');
+    equal(model_ref.model_ref_loaded, void 0, 'model is not loaded so not yet called');
+    collection.add(model_dog);
+    equal(model_ref.isLoaded(), true, 'model ref is loaded');
+    equal(model_dog.model_ref_loaded, 1, 'model_dog is now loaded');
+    collection.reset();
+    equal(model_ref.isLoaded(), false, 'model ref not loaded');
+    equal(model_dog.model_ref_loaded, 1, 'model_dog unload did nothing');
+    equal(model_dog.model_ref_unloaded, 1, 'model_dog was unloaded');
+    collection.add([model_dog, model_cat]);
+    equal(model_ref.isLoaded(), true, 'model ref is loaded');
+    equal(model_dog.model_ref_loaded, 2, 'model_dog is now loaded');
+    model_ref.model(model_cat);
+    equal(model_dog.model_ref_unloaded, 2, 'model_dog was unloaded');
+    equal(model_ref.isLoaded(), true, 'model ref is loaded');
+    equal(model_cat.model_ref_loaded, 1, 'model_cat was loaded');
+    collection.reset();
+    equal(model_ref.isLoaded(), false, 'model ref is unloaded');
+    equal(model_cat.model_ref_unloaded, 1, 'model_cat was loaded');
+    collection.add([model_dog, model_cat]);
+    model_ref.model(model_ref2);
+    equal(model_cat.model_ref_unloaded, 2, 'model_cat was unloaded');
+    equal(model_ref.isLoaded(), true, 'model ref is loaded');
+    equal(model_dog.model_ref_loaded, 3, 'model_dog was loaded');
+    collection.reset();
+    equal(model_ref.isLoaded(), false, 'model ref is unloaded');
+    return equal(model_dog.model_ref_unloaded, 3, 'model_dog was loaded');
+  });
   return test("Standard use case: expected errors", function() {
     var model_ref;
     raises((function() {
       return new Backbone.ModelRef(null, 'dog');
     }), Error, "Backbone.ModelRef: collection is missing");
-    raises((function() {
-      return new Backbone.ModelRef(new Backbone.Collection());
-    }), Error, "Backbone.ModelRef: model_id and cached_model missing");
-    raises((function() {
-      return new Backbone.ModelRef(new Backbone.Collection(), null, null);
-    }), Error, "Backbone.ModelRef: model_id and cached_model missing");
     model_ref = new Backbone.ModelRef(new Backbone.Collection(), null, new Backbone.Model({
       id: 'hello'
     }));
