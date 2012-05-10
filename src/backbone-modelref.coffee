@@ -1,12 +1,15 @@
 ###
-  backbone-modelref.js 0.1.0
+  backbone-modelref.js 0.1.1
   (c) 2011 Kevin Malakoff.
   Backbone-ModelRef.js is freely distributable under the MIT license.
   See the following for full license details:
     https://github.com/kmalakoff/backbone-modelref/blob/master/LICENSE
   Dependencies: Backbone.js and Underscore.js.
 ###
-throw new Error('Backbone.ModelRef: Dependency alert! Backbone.js must be included before this file') if not this.Backbone or not this.Backbone.Model
+
+# import Underscore and Backbone
+_ = if not @_ and (typeof(require) != 'undefined') then require('underscore') else @_
+Backbone = if not @Backbone and (typeof(require) != 'undefined') then require('backbone') else @Backbone
 
 ####################################################
 # Triggers Backbone.Events:
