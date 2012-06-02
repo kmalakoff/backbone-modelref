@@ -1,3 +1,5 @@
+[![Build Status](https://secure.travis-ci.org/kmalakoff/backbone-modelref.png)](http://travis-ci.org/kmalakoff/backbone-modelref)
+
 ````
 |_) _. _ | |_  _ ._  _ __ |\/| _  _| _ ||_) _ _|_
 |_)(_|(_ |<|_)(_)| |(/_   |  |(_)(_|(/_|| \(/_ |
@@ -51,3 +53,16 @@ API Signature Parity between Backbone.Model and Backbone.ModelRef
 Please look at the provided examples and specs for sample code:
 
 * https://github.com/kmalakoff/backbone-modelref/blob/master/test
+
+
+Building, Running and Testing the library
+-----------------------
+
+###Installing:
+
+1. install node.js: http://nodejs.org
+2. install node packages: (sudo) 'npm install'
+
+###Commands:
+
+Look at: https://github.com/kmalakoff/easy-bake

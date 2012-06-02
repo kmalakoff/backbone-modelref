@@ -1,0 +1,16 @@
+library:
+  join: backbone-modelref.js
+  minimize: true
+  directories: [src]
+
+tests:
+  output: ./build
+  directories:
+    - test/backbone-modelref_core
+    - test/packaging
+  options:
+    test:
+      timeout: 60000
+      runner: phantomjs-qunit-runner.js
+    build:
+      no_files_ok: ['test/packaging']

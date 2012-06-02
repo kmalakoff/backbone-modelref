@@ -1,5 +1,5 @@
 ###
-  backbone-modelref.js 0.1.1
+  backbone-modelref.js 0.1.2
   (c) 2011 Kevin Malakoff.
   Backbone-ModelRef.js is freely distributable under the MIT license.
   See the following for full license details:
@@ -83,7 +83,7 @@ class Backbone.ModelRef
 #######################################
 Backbone.ModelRef.prototype extends Backbone.Events
 
-Backbone.ModelRef.VERSION = '0.1.1'
+Backbone.ModelRef.VERSION = '0.1.2'
 Backbone.ModelRef.MODEL_EVENTS_WHEN_LOADED = ['reset', 'remove']
 Backbone.ModelRef.MODEL_EVENTS_WHEN_UNLOADED = ['reset', 'add']
 

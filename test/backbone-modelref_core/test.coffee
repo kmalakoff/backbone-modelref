@@ -1,7 +1,11 @@
 $(document).ready( ->
   module("Backbone-ModelRef.js")
+  # import Underscore and Backbone
+  _ = if not window._ and (typeof(require) != 'undefined') then require('underscore') else window._
+  Backbone = if not window.Backbone and (typeof(require) != 'undefined') then require('backbone') else window.Backbone
+
   test("TEST DEPENDENCY MISSING", ->
-    _.VERSION; Backbone.VERSION; Backbone.ModelRef.VERSION
+    ok(!!_); ok(!!Backbone); ok(!!Backbone.ModelRef)
   )
 
   class MyModel extends Backbone.Model
