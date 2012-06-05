@@ -42,14 +42,14 @@
       collection = new MyCollection();
       model_ref = new Backbone.ModelRef(collection, 'dog');
       equal(model_ref.isLoaded(), false, 'model_ref is not yet loaded');
-      equal(model_ref.getModel(), null, 'model_ref is not yet loaded');
+      ok(!model_ref.getModel(), 'model_ref is not yet loaded');
       collection.add(collection.parse([
         {
           id: 'cat'
         }
       ]));
       equal(model_ref.isLoaded(), false, 'model_ref is not yet loaded');
-      equal(model_ref.getModel(), null, 'model_ref is not yet loaded');
+      ok(!model_ref.getModel(), 'model_ref is not yet loaded');
       collection.add(collection.parse([
         {
           id: 'dog'
@@ -59,7 +59,7 @@
       equal(model_ref.getModel(), collection.get('dog'), 'model_ref is loaded');
       collection.remove(collection.get('dog'));
       equal(model_ref.isLoaded(), false, 'model_ref is no longer loaded');
-      equal(model_ref.getModel(), null, 'model_ref is no longer loaded');
+      ok(!model_ref.getModel(), 'model_ref is no longer loaded');
       collection.add(collection.parse([
         {
           id: 'dog'
@@ -69,7 +69,7 @@
       equal(model_ref.getModel(), collection.get('dog'), 'model_ref is loaded again');
       collection.reset();
       equal(model_ref.isLoaded(), false, 'model_ref is no longer loaded');
-      return equal(model_ref.getModel(), null, 'model_ref is no longer loaded');
+      return ok(!model_ref.getModel(), 'model_ref is no longer loaded');
     });
     test("Standard use case: with events", function() {
       var collection, loaded_count, loaded_fn, model_ref, test_model, unloaded_fn;
