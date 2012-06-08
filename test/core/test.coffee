@@ -1,11 +1,13 @@
 $(document).ready( ->
   module("Backbone-ModelRef.js")
-  # import Underscore and Backbone
-  _ = if not window._ and (typeof(require) != 'undefined') then require('underscore') else window._
-  Backbone = if not window.Backbone and (typeof(require) != 'undefined') then require('backbone') else window.Backbone
+
+  # import Underscore, Backbone, and ModelRef
+  _ = if not window._ and (typeof(require) != 'undefined') then require('underscore')?._ else window._
+  Backbone = if not window.Backbone and(typeof(require) != 'undefined') then require('backbone') else window.Backbone
+  ModelRef = if (typeof(require) != 'undefined') then require('backbone-modelref') else Backbone.ModelRef
 
   test("TEST DEPENDENCY MISSING", ->
-    ok(!!_); ok(!!Backbone); ok(!!Backbone.ModelRef)
+    ok(!!_); ok(!!Backbone); ok(!!ModelRef)
   )
 
   class MyModel extends Backbone.Model
@@ -14,7 +16,7 @@ $(document).ready( ->
 
   test("Standard use case: no events", ->
     collection = new MyCollection()
-    model_ref = new Backbone.ModelRef(collection, 'dog')
+    model_ref = new ModelRef(collection, 'dog')
     equal(model_ref.isLoaded(), false, 'model_ref is not yet loaded')
     ok(!model_ref.getModel(), 'model_ref is not yet loaded')
 
@@ -46,7 +48,7 @@ $(document).ready( ->
     unloaded_fn = (model) -> loaded_count--; ; throw new Error('model mismatch') if model != test_model
 
     collection = new MyCollection()
-    model_ref = new Backbone.ModelRef(collection, 'dog')
+    model_ref = new ModelRef(collection, 'dog')
     model_ref.bind('loaded', loaded_fn)
     model_ref.bind('unloaded', unloaded_fn)
     equal(loaded_count, 0, 'test model is not loaded')
@@ -77,7 +79,7 @@ $(document).ready( ->
       destroy: -> @model_ref.release(); @model_ref = null
 
     collection = new MyCollection()
-    view = new MyView(new Backbone.ModelRef(collection, 'dog'))
+    view = new MyView(new ModelRef(collection, 'dog'))
     equal(view.is_waiting, true, 'view is in waiting state')
 
     collection.add(collection.parse([{id: 'dog'}]))
@@ -94,14 +96,14 @@ $(document).ready( ->
   test("Emulated API signatures: simple case", ->
     collection = new MyCollection()
     model = new Backbone.Model({id: 'dog', name: 'Rover'})
-    model_ref = new Backbone.ModelRef(collection, 'dog')
+    model_ref = new ModelRef(collection, 'dog')
 
     #######################################
     equal(model.get('id'), 'dog', 'can get an id')
     equal(model_ref.get('id'), 'dog', 'can get an id')
 
     equal(model.get('name'), 'Rover', 'can get an attribute')
-    raises((->model_ref.get('name')), Error, "Backbone.ModelRef.get(): only id is permitted")
+    raises((->model_ref.get('name')), Error, "ModelRef.get(): only id is permitted")
 
     equal(model.model(), model, 'can get self')
     equal(model_ref.model(), null, 'model is not yet loaded')
@@ -115,7 +117,7 @@ $(document).ready( ->
     equal(model_ref.get('id'), 'dog', 'can get an id')
 
     equal(model.get('name'), 'Rover', 'can get an attribute')
-    raises((->model_ref.get('name')), Error, "Backbone.ModelRef.get(): only id is permitted")
+    raises((->model_ref.get('name')), Error, "ModelRef.get(): only id is permitted")
 
     equal(model.model(), model, 'can get self')
     equal(model_ref.model(), model, 'model is now loaded')
@@ -129,7 +131,7 @@ $(document).ready( ->
     equal(model_ref.get('id'), 'dog', 'can get an id')
 
     equal(model.get('name'), 'Rover', 'can get an attribute')
-    raises((->model_ref.get('name')), Error, "Backbone.ModelRef.get(): only id is permitted")
+    raises((->model_ref.get('name')), Error, "ModelRef.get(): only id is permitted")
 
     equal(model.model(), model, 'can get self')
     equal(model_ref.model(), null, 'model is not yet loaded')
@@ -146,7 +148,7 @@ $(document).ready( ->
 
     collection = new MyCollection()
     model = new Backbone.Model({id: 'dog', name: 'Rover'})
-    model_ref = new Backbone.ModelRef(collection, 'dog')
+    model_ref = new ModelRef(collection, 'dog')
 
     #######################################
     model.bindLoadingStates(create_counter_fn('model_loaded'))
@@ -182,7 +184,7 @@ $(document).ready( ->
     equal(model.model_ref_unloaded, 1, 'model unload recorded')
 
     #######################################
-    model_ref2 = new Backbone.ModelRef(collection, 'dog')
+    model_ref2 = new ModelRef(collection, 'dog')
     collection.add(model)
     model_ref2.bindLoadingStates({loaded: create_counter_fn('model_ref2_loaded'), unloaded: create_counter_fn('model_ref2_unloaded')})
     equal(model_ref2.isLoaded(), true, 'model ref is loaded')
@@ -204,9 +206,9 @@ $(document).ready( ->
     collection = new MyCollection()
     model_dog = new Backbone.Model({id: 'dog', name: 'Rover'})
     model_cat = new Backbone.Model({id: 'cat', name: 'Kitty'})
-    model_ref = new Backbone.ModelRef(collection, 'dog')
+    model_ref = new ModelRef(collection, 'dog')
     model_ref.bindLoadingStates({loaded: create_counter_fn('model_ref_loaded'), unloaded: create_counter_fn('model_ref_unloaded')})
-    model_ref2 = new Backbone.ModelRef(collection, 'dog')
+    model_ref2 = new ModelRef(collection, 'dog')
 
     #######################################
     equal(model_ref.model_ref_loaded, undefined, 'model is not loaded so not yet called')
@@ -246,17 +248,17 @@ $(document).ready( ->
   )
 
   test("Standard use case: expected errors", ->
-    raises((->new Backbone.ModelRef(null, 'dog')), Error, "Backbone.ModelRef: collection is missing")
+    raises((->new ModelRef(null, 'dog')), Error, "ModelRef: collection is missing")
 
-    model_ref = new Backbone.ModelRef(new Backbone.Collection(), null, new Backbone.Model({id: 'hello'}))
+    model_ref = new ModelRef(new Backbone.Collection(), null, new Backbone.Model({id: 'hello'}))
     equal(model_ref.get('id'), 'hello', 'can get an id of a cached model')
-    raises((->model_ref.get('foo')), Error, "Backbone.ModelRef.get(): only id is permitted")
+    raises((->model_ref.get('foo')), Error, "ModelRef.get(): only id is permitted")
 
     model_ref.release()
-    raises((->model_ref.release()), Error, "Backbone.ModelRef.release(): ref count is corrupt")
+    raises((->model_ref.release()), Error, "ModelRef.release(): ref count is corrupt")
 
-    model_ref = new Backbone.ModelRef(new Backbone.Collection(), 'hello')
+    model_ref = new ModelRef(new Backbone.Collection(), 'hello')
     equal(model_ref.get('id'), 'hello', 'can get an id of a cached model')
-    raises((->model_ref.get('foo')), Error, "Backbone.ModelRef.get(): only id is permitted")
+    raises((->model_ref.get('foo')), Error, "ModelRef.get(): only id is permitted")
   )
 )

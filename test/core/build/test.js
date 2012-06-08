@@ -4,14 +4,15 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   $(document).ready(function() {
-    var Backbone, MyCollection, MyModel, _;
+    var Backbone, ModelRef, MyCollection, MyModel, _, _ref;
     module("Backbone-ModelRef.js");
-    _ = !window._ && (typeof require !== 'undefined') ? require('underscore') : window._;
+    _ = !window._ && (typeof require !== 'undefined') ? (_ref = require('underscore')) != null ? _ref._ : void 0 : window._;
     Backbone = !window.Backbone && (typeof require !== 'undefined') ? require('backbone') : window.Backbone;
+    ModelRef = typeof require !== 'undefined' ? require('backbone-modelref') : Backbone.ModelRef;
     test("TEST DEPENDENCY MISSING", function() {
       ok(!!_);
       ok(!!Backbone);
-      return ok(!!Backbone.ModelRef);
+      return ok(!!ModelRef);
     });
     MyModel = (function(_super) {
 
@@ -40,7 +41,7 @@
     test("Standard use case: no events", function() {
       var collection, model_ref;
       collection = new MyCollection();
-      model_ref = new Backbone.ModelRef(collection, 'dog');
+      model_ref = new ModelRef(collection, 'dog');
       equal(model_ref.isLoaded(), false, 'model_ref is not yet loaded');
       ok(!model_ref.getModel(), 'model_ref is not yet loaded');
       collection.add(collection.parse([
@@ -88,7 +89,7 @@
         }
       };
       collection = new MyCollection();
-      model_ref = new Backbone.ModelRef(collection, 'dog');
+      model_ref = new ModelRef(collection, 'dog');
       model_ref.bind('loaded', loaded_fn);
       model_ref.bind('unloaded', unloaded_fn);
       equal(loaded_count, 0, 'test model is not loaded');
@@ -142,7 +143,7 @@
 
       })(Backbone.View);
       collection = new MyCollection();
-      view = new MyView(new Backbone.ModelRef(collection, 'dog'));
+      view = new MyView(new ModelRef(collection, 'dog'));
       equal(view.is_waiting, true, 'view is in waiting state');
       collection.add(collection.parse([
         {
@@ -163,13 +164,13 @@
         id: 'dog',
         name: 'Rover'
       });
-      model_ref = new Backbone.ModelRef(collection, 'dog');
+      model_ref = new ModelRef(collection, 'dog');
       equal(model.get('id'), 'dog', 'can get an id');
       equal(model_ref.get('id'), 'dog', 'can get an id');
       equal(model.get('name'), 'Rover', 'can get an attribute');
       raises((function() {
         return model_ref.get('name');
-      }), Error, "Backbone.ModelRef.get(): only id is permitted");
+      }), Error, "ModelRef.get(): only id is permitted");
       equal(model.model(), model, 'can get self');
       equal(model_ref.model(), null, 'model is not yet loaded');
       equal(model.isLoaded(), true, 'model is always loaded');
@@ -180,7 +181,7 @@
       equal(model.get('name'), 'Rover', 'can get an attribute');
       raises((function() {
         return model_ref.get('name');
-      }), Error, "Backbone.ModelRef.get(): only id is permitted");
+      }), Error, "ModelRef.get(): only id is permitted");
       equal(model.model(), model, 'can get self');
       equal(model_ref.model(), model, 'model is now loaded');
       equal(model.isLoaded(), true, 'model is always loaded');
@@ -191,7 +192,7 @@
       equal(model.get('name'), 'Rover', 'can get an attribute');
       raises((function() {
         return model_ref.get('name');
-      }), Error, "Backbone.ModelRef.get(): only id is permitted");
+      }), Error, "ModelRef.get(): only id is permitted");
       equal(model.model(), model, 'can get self');
       equal(model_ref.model(), null, 'model is not yet loaded');
       equal(model.isLoaded(), true, 'model is always loaded');
@@ -212,7 +213,7 @@
         id: 'dog',
         name: 'Rover'
       });
-      model_ref = new Backbone.ModelRef(collection, 'dog');
+      model_ref = new ModelRef(collection, 'dog');
       model.bindLoadingStates(create_counter_fn('model_loaded'));
       equal(model.model_loaded, 1, 'model is loaded so called immediately, but not bound so subsequent loads and unload will do nothing. You need a model ref for tracking those changes');
       model.bindLoadingStates({
@@ -243,7 +244,7 @@
       equal(model_ref.isLoaded(), false, 'model ref not loaded');
       equal(model.model_ref_loaded, 3, 'model unload did nothing');
       equal(model.model_ref_unloaded, 1, 'model unload recorded');
-      model_ref2 = new Backbone.ModelRef(collection, 'dog');
+      model_ref2 = new ModelRef(collection, 'dog');
       collection.add(model);
       model_ref2.bindLoadingStates({
         loaded: create_counter_fn('model_ref2_loaded'),
@@ -276,12 +277,12 @@
         id: 'cat',
         name: 'Kitty'
       });
-      model_ref = new Backbone.ModelRef(collection, 'dog');
+      model_ref = new ModelRef(collection, 'dog');
       model_ref.bindLoadingStates({
         loaded: create_counter_fn('model_ref_loaded'),
         unloaded: create_counter_fn('model_ref_unloaded')
       });
-      model_ref2 = new Backbone.ModelRef(collection, 'dog');
+      model_ref2 = new ModelRef(collection, 'dog');
       equal(model_ref.model_ref_loaded, void 0, 'model is not loaded so not yet called');
       collection.add(model_dog);
       equal(model_ref.isLoaded(), true, 'model ref is loaded');
@@ -312,24 +313,24 @@
     return test("Standard use case: expected errors", function() {
       var model_ref;
       raises((function() {
-        return new Backbone.ModelRef(null, 'dog');
-      }), Error, "Backbone.ModelRef: collection is missing");
-      model_ref = new Backbone.ModelRef(new Backbone.Collection(), null, new Backbone.Model({
+        return new ModelRef(null, 'dog');
+      }), Error, "ModelRef: collection is missing");
+      model_ref = new ModelRef(new Backbone.Collection(), null, new Backbone.Model({
         id: 'hello'
       }));
       equal(model_ref.get('id'), 'hello', 'can get an id of a cached model');
       raises((function() {
         return model_ref.get('foo');
-      }), Error, "Backbone.ModelRef.get(): only id is permitted");
+      }), Error, "ModelRef.get(): only id is permitted");
       model_ref.release();
       raises((function() {
         return model_ref.release();
-      }), Error, "Backbone.ModelRef.release(): ref count is corrupt");
-      model_ref = new Backbone.ModelRef(new Backbone.Collection(), 'hello');
+      }), Error, "ModelRef.release(): ref count is corrupt");
+      model_ref = new ModelRef(new Backbone.Collection(), 'hello');
       equal(model_ref.get('id'), 'hello', 'can get an id of a cached model');
       return raises((function() {
         return model_ref.get('foo');
-      }), Error, "Backbone.ModelRef.get(): only id is permitted");
+      }), Error, "ModelRef.get(): only id is permitted");
     });
   });
 

@@ -1,14 +1,15 @@
 ###
   backbone-modelref.js 0.1.2
-  (c) 2011 Kevin Malakoff.
+  (c) 2011, 2012 Kevin Malakoff.
   Backbone-ModelRef.js is freely distributable under the MIT license.
   See the following for full license details:
     https://github.com/kmalakoff/backbone-modelref/blob/master/LICENSE
   Dependencies: Backbone.js and Underscore.js.
 ###
+root = @
 
 # import Underscore and Backbone
-_ = if not @_ and (typeof(require) != 'undefined') then require('underscore') else @_
+_ = if not @_ and (typeof(require) != 'undefined') then require('underscore')._ else @_
 Backbone = if not @Backbone and (typeof(require) != 'undefined') then require('backbone') else @Backbone
 
 ####################################################
@@ -82,8 +83,8 @@ class Backbone.ModelRef
 # Mix in Backbone.Events so callers can subscribe
 #######################################
 Backbone.ModelRef.prototype extends Backbone.Events
-
 Backbone.ModelRef.VERSION = '0.1.2'
+
 Backbone.ModelRef.MODEL_EVENTS_WHEN_LOADED = ['reset', 'remove']
 Backbone.ModelRef.MODEL_EVENTS_WHEN_UNLOADED = ['reset', 'add']
 
@@ -163,3 +164,6 @@ Backbone.ModelRef::unbindLoadingStates = (params) ->
     @unbind('loaded', params.loaded) if params.loaded
     @unbind('unloaded', params.unloaded) if params.unloaded
   return @model()
+
+# export ModelRef namespace
+root.exports = Backbone.ModelRef if (typeof(root.exports) != 'undefined')

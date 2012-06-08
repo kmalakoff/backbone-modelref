@@ -12,20 +12,17 @@
 
   <script type="text/javascript">
     window.mock_requires = {};
-    window.mock_requires['underscore'] = window._; delete window['_'];
+    window.mock_requires['underscore'] = {_: window._}; delete window['_'];
     window.mock_requires['backbone'] = window.Backbone; delete window['Backbone'];
     window.require = function(path) { return window.mock_requires[path]; };
     window.exports = {};
   </script>
-
   <script type="text/javascript" src="../../backbone-modelref.js"></script>
-
   <script type="text/javascript">
-    window.mock_requires['backbone-modelref.js'] = window.Backbone.ModelRef = Backbone.ModelRef;
-    delete window['exports'];
+    window.mock_requires['backbone-modelref'] = window['exports']; delete window['exports']; delete window['Backbone']
   </script>
 
-  <script type="text/javascript" src="../backbone-modelref_core/build/test.js"></script>
+  <script type="text/javascript" src="../core/build/test.js"></script>
 </head>
 <body>
   <div>

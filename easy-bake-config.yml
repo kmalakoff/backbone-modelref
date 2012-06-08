@@ -6,7 +6,7 @@ library:
 tests:
   output: ./build
   directories:
-    - test/backbone-modelref_core
+    - test/core
     - test/packaging
   options:
     test:
