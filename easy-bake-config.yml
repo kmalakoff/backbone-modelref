@@ -18,7 +18,7 @@ tests:
 postinstall:
   copy_latest_underscore:
     command: 'cp'
-    args: ['node_modules/underscore/underscore.js', 'vendor/underscore-latest.js']
+    args: ['underscore', 'vendor/underscore-latest.js']
   copy_latest_backbone:
     command: 'cp'
-    args: ['node_modules/backbone/backbone.js', 'vendor/backbone-latest.js']
+    args: ['backbone', 'vendor/backbone-latest.js']
