@@ -1,17 +1,22 @@
 library:
   join: backbone-modelref.js
   compress: true
-  directories: [src]
+  files:
+    - src/**/*.coffee
 
 tests:
-  output: ./build
+  output: build
   directories:
     - test/core
     - test/packaging
+  files:
+    - '**/*.coffee'
   options:
     test:
       command: phantomjs
       runner: phantomjs-qunit-runner.js
+      files:
+        - '**/*.html'
     build:
       no_files_ok: ['test/packaging']
 
