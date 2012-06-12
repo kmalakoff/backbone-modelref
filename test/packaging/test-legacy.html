@@ -7,20 +7,7 @@
   <script type="text/javascript" src="../vendor/qunit/qunit.js"></script>
   <script type="text/javascript" src="../vendor/qunit/jslitmus.js"></script>
 
-  <script type="text/javascript" src="../../vendor/underscore-1.0.3.js"></script>
-  <script type="text/javascript" src="../../vendor/backbone-0.5.0.js"></script>
-
-  <script type="text/javascript">
-    window.mock_requires = {};
-    window.mock_requires['underscore'] = {_: window._}; delete window['_'];
-    window.mock_requires['backbone'] = window.Backbone; delete window['Backbone'];
-    window.require = function(path) { return window.mock_requires[path]; };
-    window.exports = {};
-  </script>
-  <script type="text/javascript" src="../../backbone-modelref.js"></script>
-  <script type="text/javascript">
-    window.mock_requires['backbone-modelref'] = window['exports']; delete window['exports']; delete window['Backbone']
-  </script>
+  <script type="text/javascript" src="build/bundle-legacy.js"></script>
 
   <script type="text/javascript" src="../core/build/test.js"></script>
 </head>

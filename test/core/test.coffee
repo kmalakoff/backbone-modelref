@@ -2,7 +2,8 @@ $(document).ready( ->
   module("Backbone-ModelRef.js")
 
   # import Underscore, Backbone, and ModelRef
-  _ = if not window._ and (typeof(require) != 'undefined') then require('underscore')?._ else window._
+  _ = if not window._ and (typeof(require) != 'undefined') then require('underscore') else window._
+  _ = _._ if _ and not _.VERSION # LEGACY
   Backbone = if not window.Backbone and(typeof(require) != 'undefined') then require('backbone') else window.Backbone
   ModelRef = if (typeof(require) != 'undefined') then require('backbone-modelref') else Backbone.ModelRef
 
@@ -66,10 +67,10 @@ $(document).ready( ->
     equal(loaded_count, 0, 'test model is not loaded again, again')
   )
 
-  test("Standard use case: Backbone.View", ->
-    class MyView extends Backbone.View
+  test("Standard use case in a view", ->
+    class MyView
       constructor: (@model_ref) ->
-        super; _.bindAll(this, 'render', 'renderWaiting')
+        _.bindAll(this, 'render', 'renderWaiting')
         @model_ref.retain()
         @model_ref.bind('loaded', @render); @model_ref.bind('unloaded', @renderWaiting)
         if @model_ref.isLoaded() then @render() else @renderWaiting()

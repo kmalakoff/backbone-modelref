@@ -6,17 +6,12 @@
     https://github.com/kmalakoff/backbone-modelref/blob/master/LICENSE
   Dependencies: Backbone.js and Underscore.js.
 ###
-root = @
 
 # import Underscore and Backbone
-_ = if not @_ and (typeof(require) != 'undefined') then require('underscore')._ else @_
+_ = if not @_ and (typeof(require) != 'undefined') then require('underscore') else @_
+_ = _._ if _ and not _.VERSION # LEGACY
 Backbone = if not @Backbone and (typeof(require) != 'undefined') then require('backbone') else @Backbone
 
-####################################################
-# Triggers Backbone.Events:
-#   'loaded'
-#   'unloaded'
-####################################################
 class Backbone.ModelRef
   constructor: (@collection, @model_id, @cached_model=null) ->
     _.bindAll(this, '_checkForLoad', '_checkForUnload')
@@ -165,5 +160,7 @@ Backbone.ModelRef::unbindLoadingStates = (params) ->
     @unbind('unloaded', params.unloaded) if params.unloaded
   return @model()
 
-# export ModelRef namespace
-root.exports = Backbone.ModelRef if (typeof(root.exports) != 'undefined')
+##############################################
+# export or create Backbone.ModelRef namespace
+module.exports = Backbone.ModelRef if (typeof(exports) != 'undefined'); @Backbone.ModelRef = Backbone.ModelRef if @Backbone
+Backbone.ModelRef.VERSION = '0.1.2'
