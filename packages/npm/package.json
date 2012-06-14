@@ -1,6 +1,6 @@
 {
   "author"        : {"name": "Kevin Malakoff", "url": "https://github.com/kmalakoff"},
-  "name"          : "backbone-modelref_dev",
+  "name"          : "backbone-modelref",
   "description"   : "Backbone-ModelRef.js provides a mechanism to respond to lazy-loaded Backbone.js models.",
   "keywords"      : ["backbone-modelref", "backbone-modelrefjs", "backbone", "backbonejs", "knockback", "knockbackjs"],
 
@@ -11,11 +11,6 @@
     "url": "http://github.com/kmalakoff/backbone-modelref.git"
   },
 
-  "scripts": {
-    "preinstall": "npm install coffee-script; npm install easy-bake@0.1.2",
-    "postinstall": "cake postinstall",
-    "test": "cake -c -b test"
-  },
   "optionalDependencies" : {
     "underscore": "latest",
     "backbone": "latest"
