@@ -17,6 +17,7 @@ module.exports =
     directories: [
       'test/core'
       'test/packaging'
+      'test/lodash'
     ]
     files: '**/*.coffee'
     modes:
@@ -29,6 +30,11 @@ module.exports =
           'test/packaging/build/bundle-legacy.js':
             underscore: 'vendor/underscore-1.0.3.js'
             backbone: 'vendor/backbone-0.5.1.js'
+            'backbone-modelref': 'backbone-modelref.js'
+          'test/lodash/build/bundle-lodash.js':
+            lodash: 'vendor/lodash-0.3.2.js'
+            underscore: 'underscore'
+            backbone: 'backbone'
             'backbone-modelref': 'backbone-modelref.js'
         no_files_ok: 'test/packaging'
       test:

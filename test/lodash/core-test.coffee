@@ -2,7 +2,7 @@ $(document).ready( ->
   module("Backbone-ModelRef.js")
 
   # import Underscore (or Lo-Dash with precedence), Backbone, and ModelRef
-  if (typeof(require) != 'undefined') then _ = require('underscore') else _ = window._
+  if (typeof(require) != 'undefined') then _ = require('lodash') else _ = window._
   _ = _._ if _ and (_.hasOwnProperty('_')) # LEGACY
   Backbone = if not window.Backbone and(typeof(require) != 'undefined') then require('backbone') else window.Backbone
   ModelRef = if (typeof(require) != 'undefined') then require('backbone-modelref') else Backbone.ModelRef

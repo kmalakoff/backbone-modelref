@@ -1,5 +1,5 @@
 ###
-  backbone-modelref.js 0.1.2
+  backbone-modelref.js 0.1.3
   (c) 2011, 2012 Kevin Malakoff.
   Backbone-ModelRef.js is freely distributable under the MIT license.
   See the following for full license details:
@@ -7,9 +7,9 @@
   Dependencies: Backbone.js and Underscore.js.
 ###
 
-# import Underscore and Backbone
-_ = if not @_ and (typeof(require) != 'undefined') then require('underscore') else @_
-_ = _._ if _ and not _.VERSION # LEGACY
+# import Underscore (or Lo-Dash with precedence) and Backbone
+if (typeof(require) != 'undefined') then (try _ = require('lodash') catch e then _ = require('underscore')) else _ = @_
+_ = _._ if _ and (_.hasOwnProperty('_')) # LEGACY
 Backbone = if not @Backbone and (typeof(require) != 'undefined') then require('backbone') else @Backbone
 
 class Backbone.ModelRef
@@ -78,7 +78,7 @@ class Backbone.ModelRef
 # Mix in Backbone.Events so callers can subscribe
 #######################################
 Backbone.ModelRef.prototype extends Backbone.Events
-Backbone.ModelRef.VERSION = '0.1.2'
+Backbone.ModelRef.VERSION = '0.1.3'
 
 Backbone.ModelRef.MODEL_EVENTS_WHEN_LOADED = ['reset', 'remove']
 Backbone.ModelRef.MODEL_EVENTS_WHEN_UNLOADED = ['reset', 'add']
@@ -163,4 +163,4 @@ Backbone.ModelRef::unbindLoadingStates = (params) ->
 ##############################################
 # export or create Backbone.ModelRef namespace
 module.exports = Backbone.ModelRef if (typeof(exports) != 'undefined'); @Backbone.ModelRef = Backbone.ModelRef if @Backbone
-Backbone.ModelRef.VERSION = '0.1.2'
+Backbone.ModelRef.VERSION = '0.1.3'
