@@ -33,9 +33,10 @@ module.exports =
             'backbone-modelref': 'backbone-modelref.js'
           'test/lodash/build/bundle-lodash.js':
             lodash: 'vendor/lodash-0.3.2.js'
-            underscore: 'underscore'
             backbone: 'backbone'
             'backbone-modelref': 'backbone-modelref.js'
+            _alias:
+              underscore: 'lodash'
         no_files_ok: 'test/packaging'
       test:
         command: 'phantomjs'
