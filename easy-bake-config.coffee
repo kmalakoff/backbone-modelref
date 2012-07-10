@@ -12,11 +12,11 @@ module.exports =
       ]
 
   tests:
-    output: 'build'
-    directories: [
-      'test/core'
-    ]
     _build:
+      output: 'build'
+      directories: [
+        'test/core'
+      ]
       commands: [
         'mbundle test/packaging/bundle-config.coffee'
         'mbundle test/lodash/bundle-config.coffee'
