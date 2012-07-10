@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <version>0.1.3</version>
+    <authors>Kevin Malakoff</authors>
+    <owners />
+    <licenseUrl>https://github.com/kmalakoff/backbone-modelref/blob/master/LICENSE</licenseUrl>
+    <projectUrl>http://kmalakoff.github.com/backbone-modelref/</projectUrl>
+    <dependencies>
+    </dependencies>
+    <id>backbone-modelref</id>
+    <title>backbone-modelref</title>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Backbone-ModelRef.js provides a mechanism to respond to lazy-loaded Backbone.js models.</description>
+    <summary>Backbone-ModelRef.js provides a mechanism to respond to lazy-loaded Backbone.js models.</summary>
+    <copyright>Copyright (c) 2011-2012 Kevin Malakoff</copyright>
+    <tags>backbone-modelref backbone-modelrefjs backbone backbonejs knockback knockbackjs</tags>
+  </metadata>
+  <files>
+    <file src="content/Scripts/backbone-modelref.js" target="content/Scripts/backbone-modelref.js" />
+    <file src="content/Scripts/backbone-modelref.min.js" target="content/Scripts/backbone-modelref.min.js" />
+  </files>
+</package>
