@@ -13,14 +13,14 @@ _ = _._ if _ and (_.hasOwnProperty('_')) # LEGACY
 Backbone = if not @Backbone and (typeof(require) != 'undefined') then require('backbone') else @Backbone
 
 class Backbone.ModelRef
-  constructor: (@collection, @model_id, @cached_model=null) ->
+  constructor: (@collection, @id, @cached_model=null) ->
     _.bindAll(this, '_checkForLoad', '_checkForUnload')
     throw new Error("Backbone.ModelRef: collection is missing") if not @collection
     @ref_count = 1
     @collection.retain() if @collection.retain
 
-    @model_id = @cached_model.id if @cached_model
-    @cached_model = @collection.get(@model_id) if not @cached_model and @model_id
+    @id = @cached_model.id if @cached_model
+    @cached_model = @collection.get(@id) if not @cached_model and @id
     if (@cached_model)
       @collection.bind(event, @_checkForUnload) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_LOADED
     else
@@ -42,17 +42,17 @@ class Backbone.ModelRef
     return this
 
   getModel: ->
-    @model_id = @cached_model.id if @cached_model and not @cached_model.isNew() # upgrade the reference from the cached model
+    @id = @cached_model.id if @cached_model and not @cached_model.isNew() # upgrade the reference from the cached model
     return @cached_model if @cached_model # return the cached model
-    @cached_model = @collection.get(@model_id) if @model_id # find the model, it may not exist
+    @cached_model = @collection.get(@id) if @id # find the model, it may not exist
     return @cached_model
 
   #######################################
   # Internal
   #######################################
   _checkForLoad: ->
-    return if @cached_model or not @model_id # already cached or no model id
-    model = @collection.get(@model_id)
+    return if @cached_model or not @id # already cached or no model id
+    model = @collection.get(@id)
     return if not model # not loaded
 
     # switch binding mode -> now waiting for unload
@@ -63,8 +63,8 @@ class Backbone.ModelRef
     @trigger('loaded', @cached_model)
 
   _checkForUnload: ->
-    return if not @cached_model or not @model_id # not cached or no model id
-    model = @collection.get(@model_id)
+    return if not @cached_model or not @id # not cached or no model id
+    model = @collection.get(@id)
     return if model # still exists
 
     # switch binding mode -> now waiting for load
@@ -106,21 +106,21 @@ Backbone.Model::unbindLoadingStates = (params) -> return this
 #######################################
 Backbone.ModelRef::get = (attribute_name) ->
   throw new Error("Backbone.ModelRef.get(): only id is permitted") if attribute_name != 'id'
-  @model_id = @cached_model.id if @cached_model and not @cached_model.isNew() # upgrade the reference from the cached model
-  return @model_id
+  @id = @cached_model.id if @cached_model and not @cached_model.isNew() # upgrade the reference from the cached model
+  return @id
 
 Backbone.ModelRef::model = (model) ->
   return @getModel() if arguments.length == 0
 
   throw new Error("Backbone.ModelRef.model(): collections don't match") if model and (model.collection != @collection)
 
-  changed = if @model_id then (not model or (@model_id != model.get('id'))) else !!model
+  changed = if @id then (not model or (@id != model.get('id'))) else !!model
   return unless changed
 
   # clear previous
   if @cached_model
     previous_model = @cached_model
-    @model_id = null; @cached_model = null
+    @id = null; @cached_model = null
 
     # switch binding mode -> now waiting for load
     @collection.unbind(event, @_checkForUnload) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_LOADED
@@ -129,7 +129,7 @@ Backbone.ModelRef::model = (model) ->
     @trigger('unloaded', previous_model)
 
   return unless model
-  @model_id = model.get('id'); @cached_model = model.model()
+  @id = model.get('id'); @cached_model = model.model()
 
   # switch binding mode -> now waiting for unload
   @collection.unbind(event, @_checkForLoad) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_UNLOADED

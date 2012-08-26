@@ -7,6 +7,7 @@ module.exports =
       commands: [
         'cp backbone-modelref.js packages/npm/backbone-modelref.js'
         'cp backbone-modelref.min.js packages/npm/backbone-modelref.min.js'
+        'cp README.md packages/npm/README.md'
         'cp backbone-modelref.js packages/nuget/Content/Scripts/backbone-modelref.js'
         'cp backbone-modelref.min.js packages/nuget/Content/Scripts/backbone-modelref.min.js'
       ]
