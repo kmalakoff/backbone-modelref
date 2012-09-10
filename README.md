@@ -67,5 +67,5 @@ Building, Running and Testing the library
 
 Look at: https://github.com/kmalakoff/easy-bake
 
-[1]: https://raw.github.com/kmalakoff/backbone-modelref/0.1.3/backbone-modelref.js
-[2]: https://raw.github.com/kmalakoff/backbone-modelref/0.1.3/backbone-modelref.min.js
+[1]: https://raw.github.com/kmalakoff/backbone-modelref/0.1.4/backbone-modelref.js
+[2]: https://raw.github.com/kmalakoff/backbone-modelref/0.1.4/backbone-modelref.min.js
