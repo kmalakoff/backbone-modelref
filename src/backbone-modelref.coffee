@@ -1,5 +1,5 @@
 ###
-  backbone-modelref.js 0.1.3
+  backbone-modelref.js 0.1.4
   (c) 2011, 2012 Kevin Malakoff.
   Backbone-ModelRef.js is freely distributable under the MIT license.
   See the following for full license details:
@@ -13,11 +13,17 @@ _ = _._ if _ and (_.hasOwnProperty('_')) # LEGACY
 Backbone = if not @Backbone and (typeof(require) != 'undefined') then require('backbone') else @Backbone
 
 class Backbone.ModelRef
+  @VERSION = '0.1.4'
+
+  # Mix in Backbone.Events so callers can subscribe
+  _.extend(@prototype, Backbone.Events)
+  @MODEL_EVENTS_WHEN_LOADED = ['reset', 'remove']
+  @MODEL_EVENTS_WHEN_UNLOADED = ['reset', 'add']
+
   constructor: (@collection, @id, @cached_model=null) ->
-    _.bindAll(this, '_checkForLoad', '_checkForUnload')
+    _.bindAll(@, '_checkForLoad', '_checkForUnload')
     throw new Error("Backbone.ModelRef: collection is missing") if not @collection
     @ref_count = 1
-    @collection.retain() if @collection.retain
 
     @id = @cached_model.id if @cached_model
     @cached_model = @collection.get(@id) if not @cached_model and @id
@@ -26,7 +32,7 @@ class Backbone.ModelRef
     else
       @collection.bind(event, @_checkForLoad) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_UNLOADED
 
-  retain: -> @ref_count++; return this
+  retain: -> @ref_count++; return @
   release: ->
     throw new Error("Backbone.ModelRef.release(): ref count is corrupt") if @ref_count<=0
 
@@ -37,9 +43,11 @@ class Backbone.ModelRef
       @collection.unbind(event, @_checkForUnload) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_LOADED
     else
       @collection.unbind(event, @_checkForLoad) for event in Backbone.ModelRef.MODEL_EVENTS_WHEN_UNLOADED
-    @collection.release() if @collection.release
     @collection = null
-    return this
+
+    # unbind all remaining events
+    @unbind(null)
+    @
 
   getModel: ->
     @id = @cached_model.id if @cached_model and not @cached_model.isNew() # upgrade the reference from the cached model
@@ -75,15 +83,6 @@ class Backbone.ModelRef
     @trigger('unloaded', model)
 
 #######################################
-# Mix in Backbone.Events so callers can subscribe
-#######################################
-Backbone.ModelRef.prototype extends Backbone.Events
-Backbone.ModelRef.VERSION = '0.1.3'
-
-Backbone.ModelRef.MODEL_EVENTS_WHEN_LOADED = ['reset', 'remove']
-Backbone.ModelRef.MODEL_EVENTS_WHEN_UNLOADED = ['reset', 'add']
-
-#######################################
 # Emulated APIs: Backbone.Model - Helps simplify code that takes either a Backbone.Model or Backbone.ModelRef by providing a common signature
 #######################################
 Backbone.Model::model = ->
@@ -94,12 +93,12 @@ Backbone.Model::isLoaded = -> return true
 
 Backbone.Model::bindLoadingStates = (params) ->
   if _.isFunction(params)
-    params(this)
+    params(@)
   else if params.loaded
-    params.loaded(this)
-  return this
+    params.loaded(@)
+  @
 
-Backbone.Model::unbindLoadingStates = (params) -> return this
+Backbone.Model::unbindLoadingStates = (params) -> @
 
 #######################################
 # Emulated APIs: Backbone.ModelRef - Helps simplify code that takes either a Backbone.Model or Backbone.ModelRef by providing a common signature
@@ -143,24 +142,20 @@ Backbone.ModelRef::isLoaded = ->
   return if model.isLoaded then model.isLoaded() else true  # allow for a custom isLoaded check (for example, checking lazy dependencies are loaded in Backbone.Relational)
 
 Backbone.ModelRef::bindLoadingStates = (params) ->
-  if _.isFunction(params)
-    @bind('loaded', params)
-  else
-    @bind('loaded', params.loaded) if params.loaded
-    @bind('unloaded', params.unloaded) if params.unloaded
+  params = {loaded: params} if _.isFunction(params)
+  not params.loaded or @bind('loaded', params.loaded)
+  not params.unloaded or @bind('unloaded', params.unloaded)
   model = @model()
   return null unless model
   return model.bindLoadingStates(params)
 
 Backbone.ModelRef::unbindLoadingStates = (params) ->
-  if _.isFunction(params)
-    @unbind('loaded', params)
-  else
-    @unbind('loaded', params.loaded) if params.loaded
-    @unbind('unloaded', params.unloaded) if params.unloaded
+  params = {loaded: params} if _.isFunction(params)
+  not params.loaded or @unbind('loaded', params.loaded)
+  not params.unloaded or @unbind('unloaded', params.unloaded)
   return @model()
 
 ##############################################
 # export or create Backbone.ModelRef namespace
 module.exports = Backbone.ModelRef if (typeof(exports) != 'undefined'); @Backbone.ModelRef = Backbone.ModelRef if @Backbone
-Backbone.ModelRef.VERSION = '0.1.3'
+Backbone.ModelRef.VERSION = '0.1.4'

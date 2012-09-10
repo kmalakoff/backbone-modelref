@@ -35,6 +35,6 @@ module.exports =
 
   _postinstall:
     commands: [
-      'cp underscore vendor/underscore-latest.js'
-      'cp backbone vendor/backbone-latest.js'
+      'cp -v underscore vendor/underscore.js'
+      'cp -v backbone vendor/backbone.js'
     ]

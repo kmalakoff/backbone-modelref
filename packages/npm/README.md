@@ -14,7 +14,7 @@ You can get the library here:
 
 # An Example:
 
-````
+```
   class MyView extends Backbone.View
     constructor: (@model_ref) ->
       super; _.bindAll(this, 'render', 'renderWaiting')
@@ -27,7 +27,7 @@ You can get the library here:
   collection = new MyCollection()
   view = new MyView(new Backbone.ModelRef(collection, 'dog')) # view is now rendering in waiting state
   collection.add(collection.parse([{id: 'dog'}]))             # view is now rendering in loaded state
-````
+```
 
 Classes
 -------
