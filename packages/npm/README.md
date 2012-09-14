@@ -14,6 +14,17 @@ Please see the [release notes](https://github.com/kmalakoff/backbone-modelref/bl
 * [Development version](https://raw.github.com/kmalakoff/backbone-modelref/0.1.5/backbone-modelref.js)
 * [Production version](https://raw.github.com/kmalakoff/backbone-modelref/0.1.5/backbone-modelref.min.js)
 
+###Module Loading
+
+Backbone-ModelRef.js is compatible with Require.js and AMD module loading. Module names:
+
+* 'backbone-modelref' - backbone-modelref.js.
+
+###Dependencies
+
+* [Backbone.js](http://backbonejs.org/)
+* [Underscore.js](http://underscorejs.org/)
+
 # An Example:
 
 ```
