@@ -5,21 +5,24 @@
   Dependencies: Backbone.js, and Underscore.js.
 ###
 
-# import Underscore (or Lo-Dash with precedence) and Backbone
-if not @_ and (typeof(require) != 'undefined') then (try _ = require('lodash') catch e then _ = require('underscore')) else _ = @_
-_ = _._ if _ and (_.hasOwnProperty('_')) # LEGACY
+# helpers
+isFunction = (obj) -> return typeof(obj) is 'function'
+bind = (obj, fn_name) -> fn = obj[fn_name]; return obj[fn_name] = -> fn.apply(obj, arguments)
+
+# import Backbone
 Backbone = if not @Backbone and (typeof(require) != 'undefined') then require('backbone') else @Backbone
 
 class Backbone.ModelRef
   @VERSION = '0.1.5'
 
   # Mix in Backbone.Events so callers can subscribe
-  _.extend(@prototype, Backbone.Events)
+  @prototype extends Backbone.Events
   @MODEL_EVENTS_WHEN_LOADED = ['reset', 'remove']
   @MODEL_EVENTS_WHEN_UNLOADED = ['reset', 'add']
 
   constructor: (@collection, @id, @cached_model=null) ->
-    _.bindAll(@, '_checkForLoad', '_checkForUnload')
+    @_checkForLoad = bind(@, '_checkForLoad'); @_checkForUnload = bind(@, '_checkForUnload')
+
     throw new Error("Backbone.ModelRef: collection is missing") if not @collection
     @ref_count = 1
 
@@ -90,7 +93,7 @@ Backbone.Model::model = ->
 Backbone.Model::isLoaded = -> return true
 
 Backbone.Model::bindLoadingStates = (params) ->
-  if _.isFunction(params)
+  if isFunction(params)
     params(@)
   else if params.loaded
     params.loaded(@)
@@ -140,7 +143,7 @@ Backbone.ModelRef::isLoaded = ->
   return if model.isLoaded then model.isLoaded() else true  # allow for a custom isLoaded check (for example, checking lazy dependencies are loaded in Backbone.Relational)
 
 Backbone.ModelRef::bindLoadingStates = (params) ->
-  params = {loaded: params} if _.isFunction(params)
+  params = {loaded: params} if isFunction(params)
   not params.loaded or @bind('loaded', params.loaded)
   not params.unloaded or @bind('unloaded', params.unloaded)
   model = @model()
@@ -148,7 +151,7 @@ Backbone.ModelRef::bindLoadingStates = (params) ->
   return model.bindLoadingStates(params)
 
 Backbone.ModelRef::unbindLoadingStates = (params) ->
-  params = {loaded: params} if _.isFunction(params)
+  params = {loaded: params} if isFunction(params)
   not params.loaded or @unbind('loaded', params.loaded)
   not params.unloaded or @unbind('unloaded', params.unloaded)
   return @model()

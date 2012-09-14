@@ -8,7 +8,7 @@
   return (function(factory) {
     // AMD
     if (typeof define === 'function' && define.amd) {
-      return define('backbone-relational', ['underscore', 'backbone'], factory);
+      return define('backbone-modelref', ['underscore', 'backbone'], factory);
     }
     // CommonJS/NodeJS or No Loader
     else {

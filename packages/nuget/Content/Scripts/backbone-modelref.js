@@ -8,7 +8,7 @@
   return (function(factory) {
     // AMD
     if (typeof define === 'function' && define.amd) {
-      return define('backbone-relational', ['underscore', 'backbone'], factory);
+      return define('backbone-modelref', ['underscore', 'backbone'], factory);
     }
     // CommonJS/NodeJS or No Loader
     else {
@@ -22,21 +22,21 @@
   Dependencies: Backbone.js, and Underscore.js.
 */
 
-var Backbone, _;
+var Backbone, bind, isFunction,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-if (!this._ && (typeof require !== 'undefined')) {
-  try {
-    _ = require('lodash');
-  } catch (e) {
-    _ = require('underscore');
-  }
-} else {
-  _ = this._;
-}
+isFunction = function(obj) {
+  return typeof obj === 'function';
+};
 
-if (_ && (_.hasOwnProperty('_'))) {
-  _ = _._;
-}
+bind = function(obj, fn_name) {
+  var fn;
+  fn = obj[fn_name];
+  return obj[fn_name] = function() {
+    return fn.apply(obj, arguments);
+  };
+};
 
 Backbone = !this.Backbone && (typeof require !== 'undefined') ? require('backbone') : this.Backbone;
 
@@ -44,7 +44,7 @@ Backbone.ModelRef = (function() {
 
   ModelRef.VERSION = '0.1.5';
 
-  _.extend(ModelRef.prototype, Backbone.Events);
+  __extends(ModelRef.prototype, Backbone.Events);
 
   ModelRef.MODEL_EVENTS_WHEN_LOADED = ['reset', 'remove'];
 
@@ -55,7 +55,8 @@ Backbone.ModelRef = (function() {
     this.collection = collection;
     this.id = id;
     this.cached_model = cached_model != null ? cached_model : null;
-    _.bindAll(this, '_checkForLoad', '_checkForUnload');
+    this._checkForLoad = bind(this, '_checkForLoad');
+    this._checkForUnload = bind(this, '_checkForUnload');
     if (!this.collection) {
       throw new Error("Backbone.ModelRef: collection is missing");
     }
@@ -189,7 +190,7 @@ Backbone.Model.prototype.isLoaded = function() {
 };
 
 Backbone.Model.prototype.bindLoadingStates = function(params) {
-  if (_.isFunction(params)) {
+  if (isFunction(params)) {
     params(this);
   } else if (params.loaded) {
     params.loaded(this);
@@ -272,7 +273,7 @@ Backbone.ModelRef.prototype.isLoaded = function() {
 
 Backbone.ModelRef.prototype.bindLoadingStates = function(params) {
   var model;
-  if (_.isFunction(params)) {
+  if (isFunction(params)) {
     params = {
       loaded: params
     };
@@ -287,7 +288,7 @@ Backbone.ModelRef.prototype.bindLoadingStates = function(params) {
 };
 
 Backbone.ModelRef.prototype.unbindLoadingStates = function(params) {
-  if (_.isFunction(params)) {
+  if (isFunction(params)) {
     params = {
       loaded: params
     };
