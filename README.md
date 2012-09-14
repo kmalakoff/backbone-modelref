@@ -7,10 +7,12 @@
 
 Backbone-ModelRef.js provides a mechanism to respond to lazy-loaded Backbone.js models.
 
-You can get the library here:
+#Download Latest (0.1.5):
 
-* [Development version][1]
-* [Production version][2]
+Please see the [release notes](https://github.com/kmalakoff/backbone-modelref/blob/master/RELEASE_NOTES.md) for upgrade pointers.
+
+* [Development version](https://raw.github.com/kmalakoff/backbone-modelref/0.1.5/backbone-modelref.js)
+* [Production version](https://raw.github.com/kmalakoff/backbone-modelref/0.1.5/backbone-modelref.min.js)
 
 # An Example:
 
@@ -66,6 +68,3 @@ Building, Running and Testing the library
 ###Commands:
 
 Look at: https://github.com/kmalakoff/easy-bake
-
-[1]: https://raw.github.com/kmalakoff/backbone-modelref/0.1.4/backbone-modelref.js
-[2]: https://raw.github.com/kmalakoff/backbone-modelref/0.1.4/backbone-modelref.min.js

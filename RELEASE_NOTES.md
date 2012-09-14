@@ -1,5 +1,9 @@
 Please refer to the following release notes when upgrading your version of Backbone-ModelRef.js.
 
+## 0.1.5
+
+* added AMD loader.
+
 ## 0.1.4
 
 * added automatic unbinding of all events on release

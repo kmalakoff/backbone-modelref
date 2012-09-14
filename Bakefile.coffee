@@ -1,6 +1,7 @@
 module.exports =
   library:
     join: 'backbone-modelref.js'
+    wrapper: 'src/module-loader.js'
     compress: true
     files: 'src/**/*.coffee'
     _build:
