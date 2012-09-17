@@ -1,10 +1,9 @@
 $(document).ready( ->
-  module("knockback-page-navigators-simple-amd.js")
+  module("backbone-modelref-amd.js")
 
-  # Knockback and depdenencies
+  # library anf dependencies
   require(['underscore', 'backbone', 'backbone-modelref'], (_, Backbone, ModelRef) ->
-    _ or= @_
-    Backbone or= @Backbone
+    _ or= @_; Backbone or= @Backbone # get underscore and backbone from the global namespace
 
     test("TEST DEPENDENCY MISSING", ->
       ok(!!_); ok(!!Backbone); ok(!!ModelRef)

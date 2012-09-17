@@ -16,7 +16,7 @@ Please see the [release notes](https://github.com/kmalakoff/backbone-modelref/bl
 
 ###Module Loading
 
-Backbone-ModelRef.js is compatible with Require.js and AMD module loading. Module names:
+Backbone-ModelRef.js is compatible with RequireJS, CommonJS, Brunch and AMD module loading. Module names:
 
 * 'backbone-modelref' - backbone-modelref.js.
 
