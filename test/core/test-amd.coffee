@@ -1,4 +1,4 @@
-$(document).ready( ->
+$(->
   module("backbone-modelref-amd.js")
 
   # library and dependencies

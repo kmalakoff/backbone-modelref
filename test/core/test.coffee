@@ -1,4 +1,4 @@
-$(document).ready( ->
+$(->
   module("Backbone-ModelRef.js")
 
   # import Underscore (or Lo-Dash with precedence), Backbone, and ModelRef
