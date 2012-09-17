@@ -1,7 +1,7 @@
 $(document).ready( ->
   module("backbone-modelref-amd.js")
 
-  # library anf dependencies
+  # library and dependencies
   require(['underscore', 'backbone', 'backbone-modelref'], (_, Backbone, ModelRef) ->
     _ or= @_; Backbone or= @Backbone # get underscore and backbone from the global namespace
 
