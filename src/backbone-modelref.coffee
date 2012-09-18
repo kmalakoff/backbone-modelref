@@ -48,7 +48,7 @@ class Backbone.ModelRef
 
     # unbind all remaining events
     @unbind(null)
-    @
+    return @
 
   getModel: ->
     @id = @cached_model.id if @cached_model and not @cached_model.isNew() # upgrade the reference from the cached model
@@ -97,7 +97,7 @@ Backbone.Model::bindLoadingStates = (params) ->
     params(@)
   else if params.loaded
     params.loaded(@)
-  @
+  return @
 
 Backbone.Model::unbindLoadingStates = (params) -> @
 
