@@ -38,4 +38,5 @@ module.exports =
     commands: [
       'cp -v underscore vendor/underscore.js'
       'cp -v backbone vendor/backbone.js'
+      'cp -v lodash vendor/optional/lodash.js'
     ]
