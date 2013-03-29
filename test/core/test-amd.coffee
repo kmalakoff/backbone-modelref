@@ -17,4 +17,4 @@ try
       runner.start()
 
 catch error
-  alert("Background AMD specs failed: '#{error}'")
+  alert("AMD tests failed: '#{error}'")
