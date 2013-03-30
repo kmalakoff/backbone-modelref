@@ -15,7 +15,7 @@ try
   # library and dependencies
   require ['underscore', 'backbone', 'backbone-modelref', 'qunit_test_runner'], (_, Backbone, ModelRef, runner) ->
     window._ = window.Backbone = null # force each test to require dependencies synchronously
-    runner.start(); require ['./build/test'], ->
+    require ['./build/test'], -> runner.start()
 
 catch error
   alert("AMD tests failed: '#{error}'")
