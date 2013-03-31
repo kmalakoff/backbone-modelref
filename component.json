@@ -1,0 +1,17 @@
+{
+  "name": "backbone-modelref",
+  "version": "0.1.5",
+  "main": "backbone-modelref.js",
+  "ignore": [
+    "**/.*",
+    "components",
+    "node_modules",
+    "packages",
+    "test",
+    "vendor"
+  ],
+  "dependencies": {
+    "underscore": "~1.4.4",
+    "backbone": "~1.0.0"
+  }
+}
