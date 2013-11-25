@@ -1,8 +1,8 @@
 try
   require.config({
     paths:
-      'underscore': "../../vendor/underscore-1.4.4"
-      'backbone': "../../vendor/backbone-1.0.0"
+      'underscore': "../../vendor/underscore-1.5.2"
+      'backbone': "../../vendor/backbone-1.1.0"
       'backbone-modelref': "../../backbone-modelref"
     shim:
       underscore:

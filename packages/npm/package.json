@@ -12,8 +12,8 @@
   },
 
   "dependencies": {
-    "underscore": ">=1.4.4",
-    "backbone": ">=1.0.0"
+    "underscore": "1.5.x",
+    "backbone": "1.1.x"
   },
 
   "main"          : "backbone-modelref.js",
