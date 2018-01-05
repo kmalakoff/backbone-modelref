@@ -9,6 +9,8 @@ Backbone-ModelRef.js provides a mechanism to respond to lazy-loaded Backbone.js 
 
 #Download Latest (0.1.5):
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/kmalakoff/backbone-modelref.svg)](https://greenkeeper.io/)
+
 Please see the [release notes](https://github.com/kmalakoff/backbone-modelref/blob/master/RELEASE_NOTES.md) for upgrade pointers.
 
 * [Development version](https://raw.github.com/kmalakoff/backbone-modelref/0.1.5/backbone-modelref.js)
