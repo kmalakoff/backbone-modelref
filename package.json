@@ -23,7 +23,7 @@
     "easy-bake": "*"
   },
   "dependencies": {
-    "lodash": "2.3.x",
+    "lodash": "4.17.x",
     "underscore": "1.5.x",
     "backbone": "1.1.x"
   },
