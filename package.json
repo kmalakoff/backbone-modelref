@@ -16,7 +16,8 @@
     "clean": "bake clean",
     "build": "bake build",
     "watch": "bake watch",
-    "test": "bake test -c"
+    "test": "bake test -c",
+    "prepublishOnly": "node scripts/require-dist-tag.cjs"
   },
   "devDependencies": {
     "coffee-script": "*",
