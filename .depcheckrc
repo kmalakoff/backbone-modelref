@@ -1,0 +1,1 @@
+ignores: ["backbone-modelref", "node-version-use", "ts-dev-stack", "tsds-build", "tsds-mocha", "tsds-validate", "tsds-web-test-runner"]

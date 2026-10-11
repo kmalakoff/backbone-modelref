@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script src="node_modules/underscore/underscore-umd.js"></script>
+    <script src="node_modules/backbone/backbone.js"></script>
+    <script src="node_modules/backbone-modelref/dist/umd/backbone-modelref.cjs"></script>
+    <script src="qunit.js"></script>
+    <script>
+      QUnit.done(function (result) {
+        result.totalTests = 8;
+        document.documentElement.dataset.qunitResult = JSON.stringify(result);
+        document.documentElement.dataset.qunitDone = 'true';
+      });
+    </script>
+    <script src="test.js"></script>
+  </head>
+  <body>
+    <h1 id="qunit-header">Backbone ModelRef upstream suite</h1>
+    <h2 id="qunit-banner"></h2>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+  </body>
+</html>

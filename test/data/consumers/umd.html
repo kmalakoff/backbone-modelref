@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script src="node_modules/underscore/underscore-umd.js"></script>
+    <script src="node_modules/backbone/backbone.js"></script>
+    <script src="node_modules/backbone-modelref/dist/umd/backbone-modelref.cjs"></script>
+  </head>
+  <body>
+    <script>
+      const dog = new Backbone.Model({ id: 'dog' });
+      const collection = new Backbone.Collection([dog]);
+      const ref = new Backbone.ModelRef(collection, 'dog');
+
+      const zeroCollection = new Backbone.Collection();
+      const zeroRef = new Backbone.ModelRef(zeroCollection, 0);
+      const zeroEvents = [];
+      zeroRef.on('loaded', () => zeroEvents.push('loaded'));
+      zeroRef.on('unloaded', () => zeroEvents.push('unloaded'));
+      const zero = zeroCollection.add({ id: 0 });
+      const zeroLoaded = zeroRef.model() === zero;
+      zeroCollection.remove(zero);
+
+      const equivalentCollection = new Backbone.Collection();
+      const equivalentRef = new Backbone.ModelRef(equivalentCollection, '1');
+      let equivalentLoaded;
+      equivalentRef.on('loaded', (model) => {
+        equivalentLoaded = model;
+      });
+      const numericOne = equivalentCollection.add({ id: 1 });
+
+      const absenceCollection = new Backbone.Collection();
+      const idlessRef = new Backbone.ModelRef(absenceCollection, null);
+      const missingRef = new Backbone.ModelRef(absenceCollection, 'missing');
+      const clearModel = absenceCollection.add({ id: 'clear' });
+      const clearRef = new Backbone.ModelRef(absenceCollection, 'clear');
+      const clearStartedLoaded = clearRef.model() === clearModel;
+      const clearReturn = clearRef.model(null);
+      const absenceDistinctions =
+        idlessRef.model() === null &&
+        idlessRef.getModel() === null &&
+        missingRef.model() === undefined &&
+        missingRef.getModel() === undefined &&
+        clearStartedLoaded &&
+        clearReturn === undefined &&
+        clearRef.get('id') === null &&
+        clearRef.model() === null &&
+        clearRef.getModel() === null;
+
+      const removalModel = new Backbone.Model({ id: 'remove' });
+      const removalCollection = new Backbone.Collection([removalModel]);
+      const removalRef = new Backbone.ModelRef(removalCollection, 'remove');
+      let absentDuringRemoval = false;
+      let reloads = 0;
+      removalRef.on('loaded', () => reloads++);
+      removalRef.on('unloaded', () => {
+        absentDuringRemoval = removalRef.model() === undefined && removalRef.isLoaded() === false;
+      });
+      removalCollection.remove(removalModel);
+      const absentAfterRemoval = removalRef.model() === undefined && removalRef.isLoaded() === false;
+      removalCollection.add(removalModel);
+      const legitimateReadd = removalRef.model() === removalModel && reloads === 1;
+
+      const original = new Backbone.Model({ id: 'same', name: 'original' });
+      const replacement = new Backbone.Model({ id: 'same', name: 'replacement' });
+      const replacementCollection = new Backbone.Collection([original]);
+      const replacementRef = new Backbone.ModelRef(replacementCollection, 'same');
+      const replacementEvents = [];
+      replacementRef.on('unloaded', (model) => replacementEvents.push(`unloaded:${model.get('name')}`));
+      replacementRef.on('loaded', (model) => replacementEvents.push(`loaded:${model.get('name')}`));
+      replacementCollection.reset([replacement]);
+      const sameIdReplacement =
+        replacementRef.model() === replacement &&
+        replacementEvents.join(',') === 'unloaded:original,loaded:replacement';
+
+      function verifyReplacementRead(method) {
+        const readOriginal = new Backbone.Model({ id: 'read', name: 'original' });
+        const readReplacement = new Backbone.Model({ id: 'read', name: 'replacement' });
+        const readCollection = new Backbone.Collection([readOriginal]);
+        const readRef = new Backbone.ModelRef(readCollection, 'read');
+        const readEvents = [];
+        let callbackRead;
+        readRef.on('unloaded', (model) => {
+          readEvents.push(`unloaded:${model.get('name')}`);
+          callbackRead = readRef[method]();
+        });
+        readRef.on('loaded', (model) => readEvents.push(`loaded:${model.get('name')}`));
+        readCollection.reset([readReplacement]);
+        const expectedRead = method === 'isLoaded' ? true : readReplacement;
+        return (
+          callbackRead === expectedRead &&
+          readRef.model() === readReplacement &&
+          readEvents.join(',') === 'unloaded:original,loaded:replacement'
+        );
+      }
+
+      const replacementReads = ['model', 'getModel', 'isLoaded'].every(verifyReplacementRead);
+
+      const removedOriginal = new Backbone.Model({ id: 'removed-replacement' });
+      const removedReplacement = new Backbone.Model({ id: 'removed-replacement' });
+      const removedReplacementCollection = new Backbone.Collection([removedOriginal]);
+      const removedReplacementRef = new Backbone.ModelRef(removedReplacementCollection, 'removed-replacement');
+      let removedReplacementLoads = 0;
+      removedReplacementRef.on('unloaded', () => removedReplacementCollection.remove(removedReplacement));
+      removedReplacementRef.on('loaded', () => removedReplacementLoads++);
+      removedReplacementCollection.reset([removedReplacement]);
+
+      const nestedOriginal = new Backbone.Model({ id: 'nested' });
+      const outerReplacement = new Backbone.Model({ id: 'nested', name: 'outer' });
+      const nestedReplacement = new Backbone.Model({ id: 'nested', name: 'nested' });
+      const nestedCollection = new Backbone.Collection([nestedOriginal]);
+      const nestedRef = new Backbone.ModelRef(nestedCollection, 'nested');
+      nestedRef.on('unloaded', () => nestedCollection.reset([nestedReplacement]));
+      nestedCollection.reset([outerReplacement]);
+
+      const switchOriginal = new Backbone.Model({ id: 'switch' });
+      const switchOuter = new Backbone.Model({ id: 'switch', name: 'outer' });
+      const explicitModel = new Backbone.Model({ id: 'explicit' });
+      const switchCollection = new Backbone.Collection([switchOriginal, explicitModel]);
+      const switchRef = new Backbone.ModelRef(switchCollection, 'switch');
+      switchRef.on('unloaded', () => switchRef.model(explicitModel));
+      switchCollection.reset([switchOuter, explicitModel]);
+
+      const releasedRef = new Backbone.ModelRef(replacementCollection, 'same');
+      let loadedAfterRelease = 0;
+      releasedRef.on('unloaded', () => releasedRef.release());
+      releasedRef.on('loaded', () => loadedAfterRelease++);
+      replacementCollection.reset([original]);
+      replacementCollection.reset([replacement]);
+
+      document.documentElement.dataset.consumerResult = JSON.stringify({
+        namespaceInstalled: typeof Backbone.ModelRef === 'function',
+        modelPrototypeInstalled: typeof Backbone.Model.prototype.model === 'function',
+        modelFound: ref.model() === dog,
+        idZeroLifecycle:
+          zeroLoaded && zeroRef.model() === undefined && zeroEvents.join(',') === 'loaded,unloaded',
+        equivalentIdLifecycle: equivalentLoaded === numericOne && equivalentRef.model() === numericOne,
+        absenceDistinctions,
+        removalCallbackState: absentDuringRemoval && absentAfterRemoval && legitimateReadd,
+        sameIdReplacement,
+        replacementReads,
+        removedReplacementIgnored:
+          removedReplacementCollection.length === 0 &&
+          removedReplacementRef.model() === undefined &&
+          removedReplacementLoads === 0,
+        nestedResetWins: nestedRef.model() === nestedReplacement,
+        explicitSwitchWins: switchRef.get('id') === 'explicit' && switchRef.model() === explicitModel,
+        releasedDuringUnload: releasedRef.collection === null && loadedAfterRelease === 0,
+      });
+    </script>
+  </body>
+</html>

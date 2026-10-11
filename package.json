@@ -1,33 +1,99 @@
 {
-  "author"        : {"name": "Kevin Malakoff", "url": "https://github.com/kmalakoff"},
-  "name"          : "_backbone-modelref",
-  "description"   : "Backbone-ModelRef.js provides a mechanism to respond to lazy-loaded Backbone.js models.",
-  "keywords"      : ["backbone-modelref", "backbone-modelrefjs", "backbone", "backbonejs", "knockback", "knockbackjs"],
-
-  "url"           : "http://kmalakoff.github.com/backbone-modelref/",
-  "homepage"      : "http://kmalakoff.github.com/backbone-modelref/",
+  "name": "backbone-modelref",
+  "version": "0.1.5",
+  "description": "Backbone-ModelRef.js provides a mechanism to respond to lazy-loaded Backbone.js models.",
+  "keywords": [
+    "backbone-modelref",
+    "backbone-modelrefjs",
+    "backbone",
+    "backbonejs",
+    "knockback",
+    "knockbackjs",
+    "typescript"
+  ],
+  "homepage": "https://github.com/kmalakoff/backbone-modelref#readme",
+  "bugs": {
+    "url": "https://github.com/kmalakoff/backbone-modelref/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "http://github.com/kmalakoff/backbone-modelref.git"
+    "url": "git+https://github.com/kmalakoff/backbone-modelref.git"
   },
-
+  "license": "MIT",
+  "author": {
+    "name": "Kevin Malakoff",
+    "url": "https://github.com/kmalakoff"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/ModelRef.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./types/index.d.cts",
+        "default": "./dist/cjs/index.js"
+      }
+    },
+    "./package.json": "./package.json",
+    "./umd": "./dist/umd/backbone-modelref.cjs"
+  },
+  "main": "dist/cjs/index.js",
+  "source": "src/ModelRef.ts",
+  "types": "dist/esm/ModelRef.d.ts",
+  "files": [
+    "dist",
+    "types"
+  ],
   "scripts": {
-    "postinstall": "bake postinstall",
-    "clean": "bake clean",
-    "build": "bake build",
-    "watch": "bake watch",
-    "test": "bake test -c"
-  },
-  "devDependencies": {
-    "coffee-script": "*",
-    "easy-bake": "*"
+    "build": "tsds build",
+    "docs": "tsds docs",
+    "format": "tsds format",
+    "prepublishOnly": "node scripts/require-dist-tag.cjs && tsds validate",
+    "test": "tsds test:browser --config wtr.config.mjs && tsds test:node --no-timeouts",
+    "test:engines": "tsds test:browser --config wtr.config.mjs && nvu engines tsds test:node --no-timeouts",
+    "version": "tsds version"
   },
   "dependencies": {
-    "lodash": "2.3.x",
-    "underscore": "1.5.x",
-    "backbone": "1.1.x"
+    "@types/backbone": "*"
   },
-
-  "main"          : "backbone-modelref.js",
-  "version"       : "0.1.5"
+  "devDependencies": {
+    "@types/mocha": "*",
+    "@types/node": "*",
+    "@web/dev-server-import-maps": "^0.3.0",
+    "backbone": "1.6.1",
+    "node-version-use": "*",
+    "ts-dev-stack": "*",
+    "tsds-build": "1.23.3",
+    "tsds-config": "*",
+    "tsds-mocha": "1.24.0",
+    "tsds-validate": "1.7.9",
+    "tsds-web-test-runner": "*",
+    "underscore": "1.13.7"
+  },
+  "peerDependencies": {
+    "backbone": ">=1.2.3 <2"
+  },
+  "engines": {
+    "node": ">=18.19"
+  },
+  "allowScripts": {
+    "@swc/core": true,
+    "core-js-pure": true,
+    "esbuild": true,
+    "fsevents": true
+  },
+  "tsds": {
+    "entry": "src/index.ts",
+    "targets": [
+      "cjs",
+      "esm",
+      "umd"
+    ],
+    "globals": {
+      "@types/backbone": "Backbone",
+      "backbone": "Backbone"
+    }
+  }
 }

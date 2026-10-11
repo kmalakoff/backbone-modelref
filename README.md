@@ -1,81 +1,74 @@
-[![Build Status](https://secure.travis-ci.org/kmalakoff/backbone-modelref.png)](http://travis-ci.org/kmalakoff/backbone-modelref)
-
-````
-|_) _. _ | |_  _ ._  _ __ |\/| _  _| _ ||_) _ _|_
-|_)(_|(_ |<|_)(_)| |(/_   |  |(_)(_|(/_|| \(/_ |
-````
+# backbone-modelref
 
 Backbone-ModelRef.js provides a mechanism to respond to lazy-loaded Backbone.js models.
 
-#Download Latest (0.1.5):
+It keeps a reference to a model ID in a collection and emits `loaded` and `unloaded` as that model enters or leaves the collection. Importing the package also installs the legacy `Backbone.ModelRef` namespace and the `model`, `isLoaded`, `bindLoadingStates`, and `unbindLoadingStates` helpers on `Backbone.Model.prototype`.
 
-Please see the [release notes](https://github.com/kmalakoff/backbone-modelref/blob/master/RELEASE_NOTES.md) for upgrade pointers.
+## Install
 
-* [Development version](https://raw.github.com/kmalakoff/backbone-modelref/0.1.5/backbone-modelref.js)
-* [Production version](https://raw.github.com/kmalakoff/backbone-modelref/0.1.5/backbone-modelref.min.js)
-
-###Module Loading
-
-Backbone-ModelRef.js is compatible with RequireJS, CommonJS, Brunch and AMD module loading. Module names:
-
-* 'backbone-modelref' - backbone-modelref.js.
-
-###Dependencies
-
-* [Backbone.js](http://backbonejs.org/)
-* [Underscore.js](http://underscorejs.org/)
-
-# An Example:
-
-```
-  class MyView extends Backbone.View
-    constructor: (@model_ref) ->
-      super; _.bindAll(this, 'render', 'renderWaiting')
-      @model_ref.bind('loaded', @render); @model_ref.bind('unloaded', @renderWaiting)
-      if @model_ref.isLoaded() then @render() else @renderWaiting()
-
-    render: -> @is_waiting = false
-    renderWaiting: -> @is_waiting = true
-
-  collection = new MyCollection()
-  view = new MyView(new Backbone.ModelRef(collection, 'dog')) # view is now rendering in waiting state
-  collection.add(collection.parse([{id: 'dog'}]))             # view is now rendering in loaded state
+```sh
+npm install backbone-modelref backbone
 ```
 
-Classes
--------
-*Backbone.ModelRef*: This is the only class! It just wraps a collection and a model id, and tells you when the model is loaded and unloaded.
+The declared dependency range is Backbone `>=1.2.3 <2`. The verified matrix currently includes Backbone 1.2.3, 1.3.3, 1.4.1, and 1.6.1. The tested Node.js floor is 18.19; the library code has no known Node 18-only API requirement, but older runtimes are outside the verified support range. Browser consumers use the UMD build.
 
-API Signature Parity between Backbone.Model and Backbone.ModelRef
------------------------------------------------------------------
+## Usage
 
-|*Function*|*Backbone.Model*|*Backbone.ModelRef*|
------------------|--------------|-----------------|
-*get(attribute_name)*|returns model.get(attribute_name)|returns the model id only and throws an exception otherwise|
-*model()*|returns this|returns its model if it is loaded or null if not|
-*isLoaded()*|returns true|returns true if its model is loaded and false otherwise|
-*bindLoadingStates( loaded_fn or {loaded:fn, unloaded:fn} )*|loaded function called one time (immediately) and unloaded function never called. No Backbone.Event binding occurs|loaded function called immediately if the model is loaded otherwise they are bound using Backbone.Events 'loaded' and 'unloaded' where each is called when the model is loaded or unloaded, respectively|
-*unbindLoadingStates( loaded_fn or {loaded:fn, unloaded:fn} )*|ignored|unbinds Backbone.Events 'loaded' and 'unloaded'|
+```ts
+import Backbone from 'backbone';
+import ModelRef from 'backbone-modelref';
 
-## Other notes:
+class Dog extends Backbone.Model {}
 
-* Backbone.ModelRefs are reference counted so use retain() and release() to properly ensure non-dangling pointers.
-* You can optionally provide an function Backbone.Model.isLoaded() id you have custom loading checks like for lazy-loaded Backbone.Relational models.
-* You can optionally provide a reference counted collection (implementing retain() and release()).
+const dogs = new Backbone.Collection<Dog>();
+const dogRef = new ModelRef<Dog>(dogs, 'dog');
 
-Please look at the provided examples and specs for sample code:
+dogRef.on('loaded', (dog) => {
+  if (dog) console.log('loaded', dog.id);
+});
 
-* https://github.com/kmalakoff/backbone-modelref/blob/master/test
+dogRef.on('unloaded', (dog) => {
+  console.log('unloaded', dog.id);
+});
 
+dogs.add(new Dog({ id: 'dog' }));
+```
 
-Building, Running and Testing the library
------------------------
+CommonJS uses the same default export. For a script-tag build, load Underscore and Backbone first, then `backbone-modelref/umd`. The build installs `Backbone.ModelRef`.
 
-###Installing:
+## API parity
 
-1. install node.js: http://nodejs.org
-2. install node packages: 'npm install'
+`Backbone.ModelRef` preserves the small common API historically shared with `Backbone.Model`:
 
-###Commands:
+| Function | `Backbone.Model` | `Backbone.ModelRef` |
+| --- | --- | --- |
+| `get('id')` | Returns the model ID | Returns the referenced ID; other attributes throw |
+| `model()` | Returns itself | Returns the concrete model; `null` when ID-less or cleared, and `undefined` when an identified model is absent |
+| `isLoaded()` | Returns `true` | Delegates to the model's `isLoaded()` when present |
+| `bindLoadingStates(...)` | Calls `loaded` immediately | Calls `loaded` immediately when present and binds future state events |
+| `unbindLoadingStates(...)` | Returns the model | Unbinds the supplied state callbacks |
 
-Look at: https://github.com/kmalakoff/easy-bake
+A `ModelRef` starts with one owner. `retain()` adds an owner and returns the reference. `release()` removes one owner, returning `undefined` until the final release and the reference on final release. Final release removes only the reference's listeners; it never destroys or removes a model.
+
+## Compatibility notes
+
+This TypeScript port intentionally changes these published 0.1.5 lifecycle behaviors:
+
+- Numeric ID `0` is tracked through load and unload transitions.
+- Removal is detected with Backbone 1.2.3, whose `remove` event fires before `collection.get(id)` stops returning the removed model. Reads made inside the `unloaded` callback remain absent.
+- A collection reset that replaces a model with a different instance of the same ID emits `unloaded(oldModel)` followed by `loaded(newModel)` and follows the replacement. Resetting with the same instance emits neither event. If an application callback removes or supersedes the replacement, the reference follows that newer state instead of emitting a stale load.
+
+The regression suite also covers the two constructor forms, namespace and prototype installation, callback contexts, `null`/`undefined` absence values, and retain/release ownership semantics. Backbone's numeric/string-equivalent collection lookup behavior is preserved for referenced IDs.
+
+## Development
+
+```sh
+npm install
+npm run build
+npm test
+npm run test:engines
+```
+
+`npm run prepublishOnly` runs formatting, type validation, dependency checks, the build, and documentation generation. Publishing and versioning remain maintainer actions.
+
+See [RELEASE_NOTES.md](RELEASE_NOTES.md) for the historical release notes.
