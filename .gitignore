@@ -8,3 +8,4 @@ components/*
 .agents/
 .archive/
 .tmp/
+.cache/
